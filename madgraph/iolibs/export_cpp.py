@@ -118,7 +118,15 @@ class UFOModelConverterCPP(object):
         self.params_dep = []   # base_objects.ModelVariable
         self.params_indep = [] # base_objects.ModelVariable
         self.coups_flv_dep = []    # (name, object, [couplings])
-        self.coups_flv_indep = []  # (name, object, [couplings]) 
+        self.coups_flv_indep = []  # (name, object, [couplings])
+        self.params_ext_names = [] # names of independent parameters read directly
+                                    # from the SLHA card (as opposed to internal
+                                    # parameters/couplings derived from them);
+                                    # these are the only ones settable by name
+                                    # at runtime (e.g. via the UMAMI interface)
+        self.params_ext_slha = []  # (name, lhablock.lower(), lhacode) for the same
+                                    # parameters, so they can also be addressed by
+                                    # their SLHA card location (block + index)
         self.p_to_cpp = parsers.UFOExpressionParserCPP()
 
         # Prepare parameters and couplings for writeout in C++
@@ -181,6 +189,18 @@ class UFOModelConverterCPP(object):
                               % (param.name, param.lhablock.lower(), param.value.real)
             else:
                 raise MadGraph5Error("Only support for SLHA blocks with 1 or 2 indices")
+            # Track which independent parameters were read directly from the
+            # SLHA card (as opposed to internal parameters derived from them):
+            # these are the only ones settable by name at runtime (e.g. via
+            # the UMAMI set_parameter interface). NB: this list is consumed
+            # only by write_set_parameters() below, not by param.expr itself,
+            # since other UFOModelConverterCPP subclasses (e.g. the MadMatrix/
+            # cudacpp backend) read param.expr directly for purposes (like
+            # generating hardcoded/constexpr parameter mirrors) that require
+            # it to remain a single plain assignment.
+            self.params_ext_names.append(param.name)
+            self.params_ext_slha.append((param.name, param.lhablock.lower(),
+                                          list(param.lhacode)))
             self.params_indep.insert(0,
                                    base_objects.ModelVariable(param.name,
                                                    expression,
@@ -312,6 +332,14 @@ class UFOModelConverterCPP(object):
         replace_dict['set_flv_couplings'] = \
                                 self.write_flv_couplings(self.coups_flv_indep)
 
+        replace_dict['register_parameters'] = \
+                               self.write_register_parameters(
+                                   self.params_indep + self.params_dep + \
+                                   self.coups_indep + list(self.coups_dep.values()),
+                                   self.params_ext_names)
+        replace_dict['register_slha_keys'] = \
+                               self.write_register_slha_keys(self.params_ext_slha)
+
         replace_dict['print_independent_parameters'] = \
                                self.write_print_parameters(self.params_indep)
         replace_dict['print_independent_couplings'] = \
@@ -359,11 +387,21 @@ class UFOModelConverterCPP(object):
     def write_set_parameters(self, params):
         """Write out the lines of independent parameters"""
 
-        # For each parameter, write name = expr;
+        # For each parameter, write name = expr;, unless a runtime override
+        # was set by name for this (necessarily independent, SLHA-card-level)
+        # parameter (e.g. via the UMAMI set_parameter interface), in which
+        # case the override takes precedence over the value read from the
+        # param card
 
         res_strings = []
         for param in params:
-            res_strings.append("%s" % param.expr)
+            if param.name in self.params_ext_names:
+                res_strings.append(
+                    "if (m_param_overrides.find(\"%s\") != m_param_overrides.end())\n"
+                    "%s = m_param_overrides[\"%s\"];\nelse\n%s" %
+                    (param.name, param.name, param.name, param.expr))
+            else:
+                res_strings.append("%s" % param.expr)
 
         # Correct width sign for Majorana particles (where the width
         # and mass need to have the same sign)        
@@ -375,6 +413,40 @@ class UFOModelConverterCPP(object):
                                    {"width": particle.get('width')})
 
         return "\n".join(res_strings)
+
+    def write_register_parameters(self, params, ext_names):
+        """Write out the code that registers name->pointer entries for every
+        scalar parameter and coupling (independent or dependent), and marks
+        which independent parameters were read directly from the SLHA card
+        (as opposed to being derived internally). This lookup-by-name table
+        backs runtime access to parameters/couplings, e.g. through the UMAMI
+        set_parameter/get_parameter interface. FLV_COUPLING entries are
+        skipped: they are not simple scalar values."""
+
+        lines = []
+        for param in params:
+            if not hasattr(param, 'type'):
+                continue
+            map_name = 'm_real_params' if param.type == 'real' \
+                       else 'm_complex_params'
+            lines.append('%s["%s"] = &%s;' % (map_name, param.name, param.name))
+        for name in ext_names:
+            lines.append('m_settable_params.insert("%s");' % name)
+
+        return "\n".join(lines)
+
+    def write_register_slha_keys(self, params_ext_slha):
+        """Write out the code that registers a lookup from SLHA (block, index[,
+        index2]) key strings to parameter names, so that a settable parameter
+        can also be addressed by its location in the SLHA param card (e.g. "mass
+        6") rather than only by its model name (e.g. "mdl_MT")."""
+
+        lines = []
+        for name, block, lhacode in params_ext_slha:
+            key = block + "".join(" %d" % i for i in lhacode)
+            lines.append('m_slha_key_to_name["%s"] = "%s";' % (key, name))
+
+        return "\n".join(lines)
 
     def _assert_flv_couplings_supported(self, params):
         """Refuse, with a clear and actionable message, the merged-flavor

@@ -277,6 +277,12 @@ namespace mg5amcCpu
   {
     // Instantiate the model class and set parameters that stay fixed during run
     m_pars = Parameters::getInstance();
+    // Parameters is a process-wide singleton (not owned per-instance), so a fresh
+    // initProc() must explicitly drop any overrides left by a previous
+    // setParameterByName() call -- otherwise re-initializing from a (possibly
+    // different) param card would silently carry forward stale overrides instead
+    // of giving a clean slate.
+    m_pars->resetParameterOverrides();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
@@ -294,6 +300,14 @@ namespace mg5amcCpu
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
 #endif
+    refreshIndependentParams();
+  }
+
+  // See declaration in CPPProcess.h for why this exists and when it must be called.
+  void
+  CPPProcess::refreshIndependentParams()
+  {
+    Parameters* m_pars = Parameters::getInstance();
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     %(cipdassign)s
@@ -316,7 +330,6 @@ namespace mg5amcCpu
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters::nBsmIndepParam * sizeof( double ) );
 #endif
 #endif%(cipddump)s%(cipcdump)s%(cipfdump)s
-    //for ( int i=0; i<Parameters::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)

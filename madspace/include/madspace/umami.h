@@ -50,6 +50,8 @@ typedef enum {
     UMAMI_ERROR_UNSUPPORTED_META,
     /** a mandatory matrix element input was not provided */
     UMAMI_ERROR_MISSING_INPUT,
+    /** the provided parameter name is not a known, settable parameter */
+    UMAMI_ERROR_UNKNOWN_PARAMETER,
 } UmamiStatus;
 
 typedef enum {
@@ -131,7 +133,7 @@ UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result);
  *
  * @param handle
  *     pointer to an instance of the subprocess. Has to be cleaned up by
- *     the caller with `free_subprocess`.
+ *     the caller with `umami_free`.
  * @param param_card_path
  *     path to the parameter file
  * @return
@@ -151,7 +153,8 @@ UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path);
  * @param parameter_imag
  *     imaginary part of the parameter value. Ignored for real valued parameters.
  * @return
- *     UMAMI_SUCCESS on success, error code otherwise
+ *     UMAMI_SUCCESS on success, UMAMI_ERROR_UNKNOWN_PARAMETER if "name" is not
+ *     a settable parameter, error code otherwise
  */
 UmamiStatus umami_set_parameter(
     UmamiHandle handle, char const* name, double parameter_real, double parameter_imag
@@ -170,7 +173,8 @@ UmamiStatus umami_set_parameter(
  *     pointer to double to return imaginary part of the parameter value. Ignored
  *     for real-valued parameters (i.e. you may pass a null pointer)
  * @return
- *     UMAMI_SUCCESS on success, error code otherwise
+ *     UMAMI_SUCCESS on success, UMAMI_ERROR_UNKNOWN_PARAMETER if "name" is not
+ *     a known parameter or coupling error code otherwise
  */
 UmamiStatus umami_get_parameter(
     UmamiHandle handle, char const* name, double* parameter_real, double* parameter_imag

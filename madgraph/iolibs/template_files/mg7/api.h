@@ -39,6 +39,7 @@ typedef enum {
     UMAMI_ERROR_UNSUPPORTED_OUTPUT,
     UMAMI_ERROR_UNSUPPORTED_META,
     UMAMI_ERROR_MISSING_INPUT,
+    UMAMI_ERROR_UNKNOWN_PARAMETER,
 } UmamiStatus;
 
 typedef enum {
@@ -109,18 +110,24 @@ UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result);
 UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path);
 
 /**
- * Sets the value of a model parameter
+ * Sets the value of a model parameter. Only independent, SLHA-card-level
+ * parameters (i.e. those normally read from the param card) can be set this
+ * way; parameters or couplings derived from them are recomputed
+ * automatically and cannot be overridden directly.
  *
  * @param handle
  *     handle of a matrix element instance
  * @param name
- *     name of the parameter
+ *     name of the parameter, given either as its model name (e.g. "mdl_MT")
+ *     or as its SLHA card location, "<block> <index> [<index2>]" (e.g.
+ *     "mass 6"); the block name is matched case-insensitively
  * @param parameter_real
  *     real part of the parameter value
  * @param parameter_imag
  *     imaginary part of the parameter value. Ignored for real valued parameters.
  * @return
- *     UMAMI_SUCCESS on success, error code otherwise
+ *     UMAMI_SUCCESS on success, UMAMI_ERROR_UNKNOWN_PARAMETER if "name" is not
+ *     a settable parameter, error code otherwise
  */
 UmamiStatus umami_set_parameter(
     UmamiHandle handle,
@@ -135,14 +142,16 @@ UmamiStatus umami_set_parameter(
  * @param handle
  *     handle of a matrix element instance
  * @param name
- *     name of the parameter
+ *     name of the parameter; accepts the same two forms as
+ *     umami_set_parameter (model name, or SLHA "<block> <index> [<index2>]")
  * @param parameter_real
  *     pointer to double to return real part of the parameter value
  * @param parameter_imag
  *     pointer to double to return imaginary part of the parameter value. Ignored
  *     for real-valued parameters (i.e. you may pass a null pointer)
  * @return
- *     UMAMI_SUCCESS on success, error code otherwise
+ *     UMAMI_SUCCESS on success, UMAMI_ERROR_UNKNOWN_PARAMETER if "name" is not
+ *     a known parameter or coupling, error code otherwise
  */
 UmamiStatus umami_get_parameter(
     UmamiHandle handle,

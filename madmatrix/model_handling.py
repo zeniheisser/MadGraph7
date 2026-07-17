@@ -976,7 +976,29 @@ class MadMatrixUFOModelConverter(export_cpp.UFOModelConverterGPU):
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
-        res = self.super_write_set_parameters_donotfixMajorana(params)
+        # Independent, SLHA-card-level parameters (self.params_ext_names) get
+        # an inline check for a runtime override (e.g. set by name via the
+        # UMAMI set_parameter interface) ahead of their normal SLHA-driven
+        # assignment; every other parameter/coupling is unaffected. NB: this
+        # must NOT be folded into super_write_set_parameters_donotfixMajorana,
+        # since write_hardcoded_parameters() calls that method directly and
+        # requires each parameter's expr to remain a single plain assignment.
+        res_strings = []
+        for param in params:
+            # 'aS' is excluded here even though it is SLHA-card-level: its
+            # assignment is entirely commented out below (by name-matching on
+            # a plain "  aS = ..." line), since this backend always retrieves
+            # alphaS event-by-event (as G) rather than from the param card.
+            # Wrapping it in an override check would break that name-match.
+            if param.name in self.params_ext_names and param.name != 'aS':
+                res_strings.append(
+                    'if (m_param_overrides.find("%s") != m_param_overrides.end())\n'
+                    '%s = m_param_overrides["%s"];\nelse\n%s' %
+                    (param.name, param.name, param.name, param.expr))
+            else:
+                res_strings.append(param.expr)
+        res = "\n".join(res_strings)
+        res = res.replace('ABS(','std::abs(') # for SMEFT #614 and #616
         res = res.replace('(','( ')
         res = res.replace(')',' )')
         res = res.replace('+',' + ')
@@ -1188,6 +1210,20 @@ class MadMatrixUFOModelConverter(export_cpp.UFOModelConverterGPU):
         replace_dict['set_independent_couplings'] = self.write_set_parameters(self.coups_indep)
         replace_dict['set_dependent_parameters'] = self.write_set_parameters(self.params_dep)
         replace_dict['set_dependent_couplings'] = self.write_set_parameters(list(self.coups_dep.values()))
+        # NB: unlike the plain (mg7_v5) backend, dependent (aS-dependent) parameters
+        # and couplings are NOT persistent members of this Parameters class at all
+        # (their declarations are commented out above): they are recomputed fresh
+        # every event batch by computeDependentCouplings(), bypassing the Parameters
+        # singleton entirely. Only independent parameters/couplings (and never 'aS',
+        # whose declaration is likewise commented out) can be registered here.
+        replace_dict['register_parameters'] = \
+                               self.write_register_parameters(
+                                   [p for p in self.params_indep if p.name != 'aS'] + \
+                                   self.coups_indep,
+                                   [n for n in self.params_ext_names if n != 'aS'])
+        replace_dict['register_slha_keys'] = \
+                               self.write_register_slha_keys(
+                                   [e for e in self.params_ext_slha if e[0] != 'aS'])
         print_params_indep = [ line.replace('std::cout','//std::cout') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                                if '"aS =' in line else
                                line for line in self.write_print_parameters(self.params_indep).split('\n') ]
