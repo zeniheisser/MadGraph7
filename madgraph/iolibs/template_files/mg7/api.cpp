@@ -65,7 +65,10 @@ UmamiStatus umami_set_parameter(
     double parameter_real,
     double parameter_imag
 ) {
-    return UMAMI_ERROR_NOT_IMPLEMENTED;
+    CPPProcess* process = static_cast<CPPProcess*>(handle);
+    if (!process->getParameters().setParameterByName(name, parameter_real, parameter_imag))
+        return UMAMI_ERROR_UNKNOWN_PARAMETER;
+    return UMAMI_SUCCESS;
 }
 
 
@@ -75,7 +78,10 @@ UmamiStatus umami_get_parameter(
     double* parameter_real,
     double* parameter_imag
 ) {
-    return UMAMI_ERROR_NOT_IMPLEMENTED;
+    CPPProcess* process = static_cast<CPPProcess*>(handle);
+    if (!process->getParameters().getParameterByName(name, parameter_real, parameter_imag))
+        return UMAMI_ERROR_UNKNOWN_PARAMETER;
+    return UMAMI_SUCCESS;
 }
 
 UmamiStatus umami_matrix_element(
