@@ -25,6 +25,16 @@
     // Initialize process (read model parameters from file)
     virtual void initProc( const std::string& param_card_name );
 
+#ifndef MGONGPU_HARDCODE_PARAM
+    // Re-synchronize the cached independent parameters/couplings (cIPD/cIPC/cIPF) and the
+    // BSM-independent-parameter buffer (bsmIndepParam) with the current values in the
+    // Parameters singleton. sigmaKin() and friends read these cached copies, not the
+    // singleton itself, for performance, so updating the singleton alone (e.g. via
+    // Parameters::setParameterByName()) has no effect until this is called again; it is
+    // called once automatically by initProc().
+    static void refreshIndependentParams();
+#endif
+
     // PDG id for a given flavor combination index and particle index (0-based).
     // Useful for tools that need to enumerate flavor combinations without going through UMAMI.
     static int flavorPDG( int iflavor, int ipar );

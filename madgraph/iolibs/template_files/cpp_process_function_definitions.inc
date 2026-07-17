@@ -10,6 +10,7 @@ CPPProcess::CPPProcess(string param_card_name) :
 {
 // Instantiate the model class and set parameters that stay fixed during run
     SLHAReader slha(param_card_name, false);
+    pars.resetParameterOverrides();
     pars.setIndependentParameters(slha);
     pars.setIndependentCouplings();
     %(initProc_lines)s

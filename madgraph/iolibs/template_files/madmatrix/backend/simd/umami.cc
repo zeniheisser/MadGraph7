@@ -219,7 +219,21 @@ extern "C"
       static_cast<InterfaceInstance*>( handle )->summed_helicity = parameter_real != 0;
       return UMAMI_SUCCESS;
     }
+    // Parameters are process-wide (Parameters::getInstance()), not per-handle,
+    // matching how umami_initialize itself never stores the CPPProcess it
+    // constructs: initProc() only ever populates the Parameters singleton.
+#ifdef MGONGPU_HARDCODE_PARAM
+    // Hardcoded parameters are compile-time constants: there is nothing to set.
     return UMAMI_ERROR_NOT_IMPLEMENTED;
+#else
+    if( !Parameters::getInstance()->setParameterByName( name, parameter_real, parameter_imag ) )
+      return UMAMI_ERROR_UNKNOWN_PARAMETER;
+    // sigmaKin() and friends read cached copies of the independent parameters/couplings
+    // (cIPD/cIPC/cIPF/bsmIndepParam), not the Parameters singleton itself, for
+    // performance; refresh those caches now so the override actually takes effect.
+    CPPProcess::refreshIndependentParams();
+    return UMAMI_SUCCESS;
+#endif
   }
 
   UmamiStatus umami_get_parameter(
@@ -228,7 +242,13 @@ extern "C"
     [[maybe_unused]] double* parameter_real,
     [[maybe_unused]] double* parameter_imag )
   {
+#ifdef MGONGPU_HARDCODE_PARAM
     return UMAMI_ERROR_NOT_IMPLEMENTED;
+#else
+    if( !Parameters::getInstance()->getParameterByName( name, parameter_real, parameter_imag ) )
+      return UMAMI_ERROR_UNKNOWN_PARAMETER;
+    return UMAMI_SUCCESS;
+#endif
   }
 
   UmamiStatus umami_matrix_element(
