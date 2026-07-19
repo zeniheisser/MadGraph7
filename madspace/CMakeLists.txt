@@ -282,7 +282,31 @@ install(TARGETS madspace DESTINATION madspace/lib)
 install(
     DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
     DESTINATION "madspace/include"
-    FILES_MATCHING PATTERN "*.hpp*"
+    # *.h (not just *.hpp*) so umami.h -- the public UMAMI ABI header needed by
+    # anyone implementing or consuming a MatrixElementApi-compatible shared
+    # library -- is installed too.
+    FILES_MATCHING PATTERN "*.hpp*" PATTERN "*.h"
+)
+# include/madtrex/rex/{Rex.h,teaRex.h} are symlinks (into the sibling Rex
+# repo, same source as src/madtrex/{Rex.cc,teaRex.cc}) that the DIRECTORY
+# install above silently drops, and that a plain install(FILES ...) on the
+# symlink path installs *as a symlink* rather than dereferencing -- confirmed
+# empirically (both produced a dangling symlink once outside the source tree,
+# since the wheel/install prefix has no ../../../../../Rex to point through).
+# Resolve each to its real, on-disk path at configure time and install *that*
+# path instead, so CMake copies the actual file content. Needed for any
+# out-of-tree C++ consumer of madtrex::TupperWare -- tupperware.hpp itself
+# #includes "rex/teaRex.h" -- to build against an installed (not just
+# in-tree) madspace.
+get_filename_component(
+    madtrex_rex_h_real "${CMAKE_CURRENT_SOURCE_DIR}/include/madtrex/rex/Rex.h" REALPATH
+)
+get_filename_component(
+    madtrex_tearex_h_real "${CMAKE_CURRENT_SOURCE_DIR}/include/madtrex/rex/teaRex.h" REALPATH
+)
+install(
+    FILES "${madtrex_rex_h_real}" "${madtrex_tearex_h_real}"
+    DESTINATION madspace/include/madtrex/rex
 )
 
 
@@ -420,6 +444,8 @@ endforeach()
 # Python bindings                                                                      #
 ########################################################################################
 
+find_package(Threads REQUIRED)
+
 python_add_library(
     _madspace_py
     MODULE
@@ -427,10 +453,21 @@ python_add_library(
     src/python/instruction_set.hpp
     src/python/function_runtime.cpp
     src/python/function_runtime.hpp
+    src/python/madtrex.cpp
+    src/python/madtrex.hpp
+    src/madtrex/tupperware.cpp
+    src/madtrex/Rex.cc
+    src/madtrex/teaRex.cc
     WITH_SOABI
 )
 target_link_libraries(_madspace_py PRIVATE pybind11::headers)
 target_link_libraries(_madspace_py PUBLIC madspace)
+target_link_libraries(_madspace_py PRIVATE Threads::Threads)
+# Rex.cc/teaRex.cc (symlinked from the sibling Rex repo) use bare
+# #include "Rex.h"/"teaRex.h", matching their own project's include layout
+# (Rex/include), not madspace's "madtrex/rex/Rex.h" path -- point an extra
+# include dir directly at the symlinked header directory for those two files.
+target_include_directories(_madspace_py PRIVATE include/madtrex/rex)
 install(TARGETS _madspace_py DESTINATION madspace)
 
 ########################################################################################

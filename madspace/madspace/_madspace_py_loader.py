@@ -2,6 +2,7 @@ import ctypes
 import logging
 import os
 import platform
+import sys
 from collections import namedtuple
 
 # pre-load libmadspace
@@ -15,6 +16,13 @@ ctypes.CDLL(
 )
 
 from ._madspace_py import *
+from ._madspace_py import madtrex
+
+# pybind11 submodules aren't auto-importable as `import madspace.madtrex` --
+# only attribute access (`import madspace; madspace.madtrex`) works out of the
+# box, since the submodule's own __name__ is "_madspace_py.madtrex", not
+# "madspace.madtrex" (same fix as rex/__init__.py uses for rex.tea).
+sys.modules["madspace.madtrex"] = madtrex
 
 
 def _init():
