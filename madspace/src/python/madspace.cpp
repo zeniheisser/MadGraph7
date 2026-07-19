@@ -6,6 +6,7 @@
 #include "docstrings.hpp"
 #include "function_runtime.hpp"
 #include "instruction_set.hpp"
+#include "madtrex.hpp"
 #include "madspace/compgraphs.hpp"
 #include "madspace/driver.hpp"
 #include "madspace/phasespace.hpp"
@@ -3992,4 +3993,6 @@ PYBIND11_MODULE(_madspace_py, m) {
     };
     EventGenerator::set_abort_check_function(abort_check_function);
     MadnisTraining::set_abort_check_function(abort_check_function);
+
+    bind_madtrex(m.def_submodule("madtrex"));
 }
