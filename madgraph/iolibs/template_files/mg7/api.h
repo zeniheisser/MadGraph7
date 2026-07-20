@@ -41,6 +41,7 @@ typedef enum {
     UMAMI_ERROR_UNSUPPORTED_META,
     UMAMI_ERROR_MISSING_INPUT,
     UMAMI_ERROR_UNKNOWN_PARAMETER,
+    UMAMI_ERROR_UNINITIALIZED_META,
 } UmamiStatus;
 
 typedef enum {
@@ -55,6 +56,7 @@ typedef enum {
     UMAMI_META_DIAGRAM_COUNT,
     UMAMI_META_HELICITY_COUNT,
     UMAMI_META_COLOR_COUNT,
+    UMAMI_META_MASSES,
 } UmamiMetaKey;
 
 typedef enum {
@@ -98,7 +100,12 @@ typedef void* UmamiHandle;
  *     pointer to an instance of the subprocess. Has to be cleaned up by
  *     the caller with `free_subprocess`.
  * @return
- *     UMAMI_SUCCESS on success, error code otherwise
+ *     UMAMI_SUCCESS on success, error code otherwise. UMAMI_META_MASSES returns
+ *     UMAMI_ERROR_UNINITIALIZED_META if no instance has been created yet with
+ *     umami_initialize(). NB: unlike other meta keys, UMAMI_META_MASSES can vary between
+ *     instances (parameters are stored per-instance in this backend, and are settable via
+ *     umami_set_parameter); since this function takes no handle, it always reports the
+ *     masses of the most recently initialized-or-modified instance, not a specific one.
  */
 UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result);
 
