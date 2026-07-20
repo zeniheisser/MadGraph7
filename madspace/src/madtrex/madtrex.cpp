@@ -2,12 +2,42 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <set>
 #include <stdexcept>
 
 namespace madtrex {
+
+LheFormat detect_lhe_format(const std::string& path) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        throw std::runtime_error("detect_lhe_format: failed to open " + path);
+    }
+    char magic[6] = {0};
+    in.read(magic, sizeof(magic));
+    if (in.gcount() == static_cast<std::streamsize>(sizeof(magic)) &&
+        std::memcmp(magic, "\x93NUMPY", sizeof(magic)) == 0) {
+        return LheFormat::binary;
+    }
+    return LheFormat::xml;
+}
+
+std::shared_ptr<REX::lhe> load_lhe_xml(const std::string& path) {
+    return std::make_shared<REX::lhe>(REX::load_lhef(path));
+}
+
+std::shared_ptr<REX::lhe> load_lhe_xml(std::istream& stream) {
+    return std::make_shared<REX::lhe>(REX::load_lhef(stream));
+}
+
+std::shared_ptr<REX::lhe> load_lhe(const std::string& path) {
+    if (detect_lhe_format(path) == LheFormat::binary) {
+        return load_lhe_binary(path);
+    }
+    return load_lhe_xml(path);
+}
 
 namespace {
 
@@ -77,27 +107,17 @@ bool is_fixed_helicity(double spin) {
     return std::abs(spin - 1.0) < 1e-6 || std::abs(spin + 1.0) < 1e-6;
 }
 
-// The UMAMI libraries MadMatrix actually generates don't implement the
-// *optional* introspection functions (umami_supported_inputs/
-// required_inputs/supported_outputs), which is what make_weightor's
-// auto-derive path (the single-argument TupperWare::add_api overload) needs
-// to work at all -- against these libraries it just throws. So Driver
-// always builds its own explicit key list instead of relying on
-// auto-derivation: momenta and alpha_s are requested unconditionally (every
-// subprocess needs the former, and QCD amplitudes need the latter), and the
-// flavor index only when the subprocess actually distinguishes more than one
-// flavor channel (requesting it unconditionally would mean depending on
-// UMAMI_IN_FLAVOR_INDEX support that a single-channel subprocess's library
-// may not have). The helicity index is intentionally never requested here:
-// this library hard-errors on UMAMI_IN_HELICITY_INDEX, and its behavior when
-// no helicity input is given at all appears to be a single fixed-random-draw
-// evaluation (UMAMI_IN_RANDOM_HELICITY defaults to 0.5 internally) rather
-// than a true sum over helicities -- a real physics-affecting subtlety in how
-// this specific UMAMI implementation handles helicities that's worth
-// resolving deliberately later, not papered over here. SubProcessSpec's own
-// helicity_index (via make_event_checker) still runs regardless, so
-// event::helicity_ is populated whenever an event carries genuine per-leg
-// helicities, ready for whichever explicit-helicity handling gets added.
+// Explicit-key fallback used when the library doesn't export the optional
+// umami_supported_inputs/required_inputs introspection symbols. Momenta and
+// alpha_s are requested unconditionally; flavor index only when the subprocess
+// distinguishes more than one channel (so single-channel libraries that lack
+// UMAMI_IN_FLAVOR_INDEX support still work). Helicity index is intentionally
+// absent: older generated libraries hard-error on UMAMI_IN_HELICITY_INDEX, and
+// the helicity-summing behavior when no helicity input is provided at all is a
+// physics-affecting subtlety that warrants explicit resolution later rather
+// than accidental enablement here. SubProcessSpec's own helicity_index (via
+// make_event_checker) still populates event::helicity_ when present, ready for
+// deliberate explicit-helicity handling once it's added.
 std::vector<UmamiInputKey> input_keys_for(const SubProcessSpec& spec) {
     std::vector<UmamiInputKey> keys{UMAMI_IN_MOMENTA, UMAMI_IN_ALPHA_S};
     std::set<int> distinct_indices;
@@ -309,8 +329,17 @@ Driver& Driver::load_process(
             resolve_me_path(process_directory.string(), spec.me_path_template, _device_priority);
         const auto& api = _context->load_matrix_element(me_path, resolved_param_card);
         auto checker = make_event_checker(spec);
+        std::vector<UmamiInputKey> input_keys;
+        std::vector<UmamiOutputKey> output_keys;
+        try {
+            input_keys = default_input_keys(api);
+            output_keys = default_output_keys(api);
+        } catch (const std::runtime_error&) {
+            input_keys = input_keys_for(spec);
+            output_keys = {UMAMI_OUT_MATRIX_ELEMENT};
+        }
         _warehouse.add_process()
-            .add_api(api, input_keys_for(spec), {UMAMI_OUT_MATRIX_ELEMENT})
+            .add_api(api, input_keys, output_keys)
             .set_event_checker(std::move(checker));
         _specs.push_back(std::move(spec));
     }
@@ -323,6 +352,67 @@ Driver& Driver::load_process_directory(
     namespace fs = std::filesystem;
     fs::path json_path = fs::path(process_directory) / "SubProcesses" / "subprocesses.json";
     return load_process(json_path.string(), param_card);
+}
+
+Driver& Driver::load_param_reweighting(const std::string& rwgt_path) {
+    _param_handler = ParamHandler();
+    _param_handler.add_apis(_warehouse).read_rwgt_card(rwgt_path);
+    _warehouse.set_iterators(_param_handler.iterators());
+    _warehouse.set_launch_names(_param_handler.launch_names());
+    return *this;
+}
+
+ParamHandler& Driver::param_handler() { return _param_handler; }
+
+const ParamHandler& Driver::param_handler() const { return _param_handler; }
+
+Driver& Driver::load_events(const std::string& path, const madspace::LHEMeta& meta) {
+    LheFormat format = detect_lhe_format(path);
+    std::shared_ptr<REX::lhe> loaded =
+        format == LheFormat::binary ? load_lhe_binary(path, meta) : load_lhe_xml(path);
+    _warehouse.build(std::move(*loaded));
+    _binary_output = (format == LheFormat::binary);
+    return *this;
+}
+
+bool Driver::binary_output() const { return _binary_output; }
+
+Driver& Driver::set_binary_output(bool binary) {
+    _binary_output = binary;
+    return *this;
+}
+
+Driver& Driver::write_weights(const std::string& path) {
+    if (!_warehouse.built()) {
+        throw std::runtime_error(
+            "Driver::write_weights: WareHouse has not been built yet; call load_events() first"
+        );
+    }
+    auto& built = _warehouse.get();
+    if (_binary_output) {
+        save_weights_binary(built, path);
+    } else {
+        REX::write_lhef(built, path, true);
+    }
+    return *this;
+}
+
+Driver& Driver::reweight(
+    const std::string& process_directory,
+    const std::string& events_path,
+    const std::string& output_path,
+    const std::string& rwgt_path,
+    const std::string& param_card,
+    const madspace::LHEMeta& meta
+) {
+    load_process_directory(process_directory, param_card);
+    if (!rwgt_path.empty()) {
+        load_param_reweighting(rwgt_path);
+    }
+    load_events(events_path, meta);
+    _warehouse.get().run();
+    write_weights(output_path);
+    return *this;
 }
 
 madspace::ContextPtr Driver::context() const { return _context; }

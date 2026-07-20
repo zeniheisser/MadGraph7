@@ -1762,15 +1762,17 @@ class MadgraphProcess:
         histograms = self.build_event_histograms()
         if output_format == "compact_npy":
             self.lhe_completer = None
+            self.events_path = os.path.join(self.run_path, "events.npy")
             self.event_generator.combine_to_compact_npy(
-                os.path.join(self.run_path, "events.npy"), systematics, histograms
+                self.events_path, systematics, histograms
             )
             self.write_lhe_header(systematics)
             self.save_lhe_completer()
         elif output_format == "lhe_npy":
             self.lhe_completer = self.build_lhe_completer()
+            self.events_path = os.path.join(self.run_path, "events.npy")
             self.event_generator.combine_to_lhe_npy(
-                os.path.join(self.run_path, "events.npy"), self.lhe_completer,
+                self.events_path, self.lhe_completer,
                 systematics, histograms
             )
             self.write_lhe_header(systematics)
@@ -1788,6 +1790,7 @@ class MadgraphProcess:
             # events.lhe.gz, and switches to an external multithreaded tool
             # above 256 MB.
             misc.gzip(lhe_path)
+            self.events_path = _find_event_file(self.run_path)
         else:
             raise ValueError("Unknown output format")
         self.write_hwu(histograms)
@@ -3608,7 +3611,7 @@ class MG7Cmd(Cmd):
     # running
     # ------------------------------------------------------------------
     def do_generate_events(self, line):
-        """generate_events [-f] [-n NAME] [--laststep=parton]
+        """generate_events [-f] [-n NAME] [--laststep=parton] [--reweight=CARD]
 
         Run the mg7 generation and the selected post-processing tools."""
 
@@ -3626,7 +3629,7 @@ class MG7Cmd(Cmd):
             switch = self._apply_laststep(switch, opts)
             force_lhe_output_if_needed(switch)
             _raise_open_file_limit()
-            run_generation(switch)
+            run_generation(switch, opts['reweight_card'])
         finally:
             os.chdir(cwd)
 
@@ -3658,7 +3661,7 @@ class MG7Cmd(Cmd):
     def _parse_run_options(self, line):
         """Understand the subset of MG5's `launch` options that mean something
         for an mg7 run, and say so out loud for the ones that do not."""
-        out = {'force': False, 'name': '', 'laststep': ''}
+        out = {'force': False, 'name': '', 'laststep': '', 'reweight_card': None}
         args = self.split_arg(line)
         index = 0
         while index < len(args):
@@ -3676,6 +3679,11 @@ class MG7Cmd(Cmd):
                 index += 1
             elif arg.startswith(('-s=', '--laststep=')):
                 out['laststep'] = arg.split('=', 1)[1]
+            elif arg == '--reweight' and index < len(args):
+                out['reweight_card'] = args[index]
+                index += 1
+            elif arg.startswith('--reweight='):
+                out['reweight_card'] = arg.split('=', 1)[1]
             elif arg.startswith('-'):
                 logger.warning(
                     "'%s' is not supported by the mg7 output and is ignored; "
@@ -4498,8 +4506,10 @@ def _release_channel_generators(process) -> None:
         shutil.rmtree(process.temp_path, ignore_errors=True)
 
 
-def run_single(switch=None) -> "MadgraphProcess":
-    """Run a single generation and return the process (for its result)."""
+def run_single(switch=None, reweight_card: str | None = None) -> "MadgraphProcess":
+    """Run a single generation and return the process (for its result). If
+    reweight_card is given, runs MadtRex reweighting immediately afterward
+    against the events this call just generated (see madtrex.py)."""
     compute_auto_widths()
     process = MadgraphProcess()
     process.survey()
@@ -4507,6 +4517,16 @@ def run_single(switch=None) -> "MadgraphProcess":
     process.generate_events()
     if process.gridpack_run_mode != "regular":
         return process
+    if reweight_card:
+        if process.run_card["run"]["output_format"] == "compact_npy":
+            raise ValueError(
+                "--reweight requires run_card [run] output_format to be 'lhe' "
+                "or 'lhe_npy': 'compact_npy' discards the per-event flavor/"
+                "helicity information MadtRex needs to match events to the "
+                "matrix element library"
+            )
+        from madgraph.iolibs.template_files.mg7.madtrex import run_reweighting
+        run_reweighting(reweight_card, events_path=process.events_path)
     # run_card-driven LHE post-processing (displaced vertex + systematics)
     run_lhe_postprocessing(process)
     # run the post-processing tools (Pythia8/Delphes/MadSpin/reweight/analysis)
@@ -4542,12 +4562,13 @@ def detect_param_scan(param_card_path):
     return None
 
 
-def run_scan(iterator, card_path, switch=None) -> None:
+def run_scan(iterator, card_path, switch=None, reweight_card: str | None = None) -> None:
     """Iterate over all scan points, running a full generation for each and
     accumulating the results, then write the scan summary. Works for both the
     run_card (RunCardIterator) and the param_card (ParamCardIterator); their
     interface (__iter__/write/store_entry/get_next_name/write_summary) is the
-    same. The scan card is restored afterwards."""
+    same. The scan card is restored afterwards. reweight_card, if given, is
+    forwarded to run_single() so every scan point is reweighted in turn."""
     import tomllib
     with open(os.path.join("Cards", "run_card.toml"), "rb") as f:
         run_name = tomllib.load(f).get("run", {}).get("run_name", "run")
@@ -4561,7 +4582,7 @@ def run_scan(iterator, card_path, switch=None) -> None:
         for i, point in enumerate(iterator):
             point.write(card_path)
             logger.info("=== scan point %d ===", i + 1)
-            process = run_single(switch)
+            process = run_single(switch, reweight_card)
             # use the run directory the process actually created, so the
             # per-point params.dat written by write_summary has a home
             name = os.path.basename(process.run_path)
@@ -4581,9 +4602,11 @@ def run_scan(iterator, card_path, switch=None) -> None:
         shutil.move(backup, card_path)
 
 
-def run_generation(switch=None) -> None:
+def run_generation(switch=None, reweight_card: str | None = None) -> None:
     """Run the generation, expanding a scan over the run_card or the param_card
-    when one is present (scanning both simultaneously is not allowed)."""
+    when one is present (scanning both simultaneously is not allowed).
+    reweight_card, if given, is forwarded to run_single()/run_scan() to run
+    MadtRex reweighting immediately after each generation (see madtrex.py)."""
     run_card_path = os.path.join("Cards", "run_card.toml")
     param_card_path = os.path.join("Cards", "param_card.dat")
     run_iter = detect_run_scan(run_card_path)
@@ -4593,11 +4616,11 @@ def run_generation(switch=None) -> None:
             "Scanning simultaneously over the run_card and the param_card is "
             "not allowed. Please keep the scan:[...] entries in only one card.")
     if run_iter:
-        run_scan(run_iter, run_card_path, switch)
+        run_scan(run_iter, run_card_path, switch, reweight_card)
     elif param_iter:
-        run_scan(param_iter, param_card_path, switch)
+        run_scan(param_iter, param_card_path, switch, reweight_card)
     else:
-        _release_channel_generators(run_single(switch))
+        _release_channel_generators(run_single(switch, reweight_card))
 
 
 def _lhe_needed_by(switch, card) -> "str | None":
@@ -4680,6 +4703,14 @@ def main() -> None:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", action="store_false", dest="ask_edit_cards")
+    parser.add_argument(
+        "--reweight", dest="reweight_card", default=None,
+        help="run MadtRex reweighting immediately after event generation, "
+             "using this reweight card (eg Cards/reweight_card.dat)",
+    )
     args = parser.parse_args()
 
-    MG7Cmd().run_cmd("generate_events" if args.ask_edit_cards else "generate_events -f")
+    line = "generate_events" if args.ask_edit_cards else "generate_events -f"
+    if args.reweight_card:
+        line += " --reweight=%s" % args.reweight_card
+    MG7Cmd().run_cmd(line)

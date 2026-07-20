@@ -3,9 +3,11 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <string>
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 
 #include "madspace/compgraphs.hpp"
 #include "madspace/driver/tensor.hpp"
@@ -34,6 +36,7 @@ struct UmamiFunctions {
         supported_outputs;
     std::function<std::remove_pointer_t<decltype(&umami_initialize)>> initialize;
     std::function<std::remove_pointer_t<decltype(&umami_set_parameter)>> set_parameter;
+    std::function<std::remove_pointer_t<decltype(&umami_get_parameter)>> get_parameter;
     std::function<std::remove_pointer_t<decltype(&umami_matrix_element)>>
         matrix_element;
     std::function<std::remove_pointer_t<decltype(&umami_free)>> free;
@@ -173,6 +176,28 @@ public:
 
     /// Opaque per-thread UMAMI process handle, initialized on first use.
     void* process_instance() const { return _instances.get().get(); }
+
+    // Whether the loaded library actually implements umami_set_parameter/
+    // umami_get_parameter (both optional symbols; a library built without
+    // them still loads fine, it just can't be parameter-reweighted in place
+    // and set_parameter()/get_parameter() will throw UMAMI_ERROR_NOT_IMPLEMENTED
+    // if called anyway).
+    bool supports_set_parameter() const noexcept { return bool(_functions.set_parameter); }
+    bool supports_get_parameter() const noexcept { return bool(_functions.get_parameter); }
+
+    // Directly sets/reads an independent, SLHA-card-level model parameter on
+    // this api's process_instance() -- see umami_set_parameter/
+    // umami_get_parameter in umami.h for the accepted forms of name (model
+    // name, eg "mdl_MT", or SLHA location, eg "mass 6"). Unlike rewriting the
+    // param card and reloading the library, this mutates the already-loaded
+    // instance in place, so callers evaluating the matrix element
+    // concurrently on the same instance must synchronize against that (see
+    // madtrex::detail::api_call_mutex, used by both
+    // madtrex::TupperWare-derived weightors and madtrex::ParamHandler for
+    // exactly this reason). Throws on UMAMI_ERROR_UNKNOWN_PARAMETER (name is
+    // not a settable/known parameter) or if the symbol isn't implemented.
+    void set_parameter(const std::string& name, double real, double imag = 0.0) const;
+    std::pair<double, double> get_parameter(const std::string& name) const;
 
 private:
     MatrixElementApi(
