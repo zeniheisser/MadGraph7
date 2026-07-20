@@ -1123,6 +1123,8 @@ class OneProcessExporterCPP(object):
         replace_dict['initProc_lines'] = \
                                 self.get_initProc_lines(self.matrix_elements[0],
                                                         color_amplitudes)
+        replace_dict['refreshMasses_lines'] = \
+                                self.get_refresh_masses_lines(self.matrix_elements[0])
         replace_dict['reset_jamp_lines'] = \
                                      self.get_reset_jamp_lines(color_amplitudes)
         replace_dict['sigmaKin_lines'], other_replace = \
@@ -1207,6 +1209,17 @@ class OneProcessExporterCPP(object):
         initProc_lines.append("jamp2 = new double[%d];" % len(color_amplitudes[0]))
 
         return "\n".join(initProc_lines)
+
+    # Companion to get_initProc_lines: the same external-mass push_back list, without the
+    # jamp2 allocation (jamp2 is allocated once in the constructor and must not be
+    # reallocated every time CPPProcess::refreshMasses() re-populates mME).
+    def get_refresh_masses_lines(self, matrix_element):
+        """Get refreshMasses_lines for function definition for CPPProcess::refreshMasses"""
+
+        lines = []
+        for part in matrix_element.get_external_wavefunctions():
+            lines.append("mME.push_back(pars.%s);" % part.get('mass'))
+        return "\n".join(lines)
 
     def get_reset_jamp_lines(self, color_amplitudes):
         """Get lines to reset jamps"""
@@ -3269,8 +3282,15 @@ class ProcessExporterMG7(ProcessExporterCPP):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.me_lib_format = args[1].get("me_lib_format", None)
+        self.me_lib_format = args[1].get("me_lib_format", None) or pjoin("SubProcesses", "{process_id}", "api.so")
         self.process_info = []
+        # Lazy import: madgraph.iolibs.export_mg7 imports export_cpp itself, so a top-level
+        # import here would be circular. Without this, oneprocessclass silently falls back
+        # to the base ProcessExporterCPP.oneprocessclass (OneProcessExporterCPP), which lacks
+        # the .name attribute (and other MG7-specific behaviour) generate_subprocess_directory
+        # needs.
+        from madgraph.iolibs import export_mg7
+        self.oneprocessclass = export_mg7.OneProcessExporterMG7
 
     def generate_subprocess_directory(
         self, matrix_element, cpp_helas_call_writer, proc_number=None

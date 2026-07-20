@@ -12,6 +12,7 @@
 #include "MemoryBuffers.h"
 
 #include <cmath>
+#include <cstdio>
 #include <vector>
 #include <array>
 #include <utility>
@@ -273,6 +274,21 @@ extern "C"
     // (cIPD/cIPC/cIPF/bsmIndepParam), not the Parameters singleton itself, for
     // performance; refresh those caches now so the override actually takes effect.
     CPPProcess::refreshIndependentParams();
+    // Keep g_externalMasses in sync with the (possibly updated) singleton.
+    // Emit a one-time warning if a mass parameter was changed, since any phase-space
+    // generator that cached masses from a prior umami_get_meta(UMAMI_META_MASSES,...) call
+    // will need to re-query them.
+    {
+      std::vector<fptype> updatedMasses;
+      CPPProcess::refreshExternalMasses( updatedMasses );
+      bool changed = ( updatedMasses.size() != g_externalMasses.size() );
+      for( size_t i = 0; !changed && i < updatedMasses.size(); ++i )
+        changed = ( static_cast<double>( updatedMasses[i] ) != g_externalMasses[i] );
+      if( changed )
+      {
+        g_externalMasses.assign( updatedMasses.begin(), updatedMasses.end() );
+      }
+    }
     return UMAMI_SUCCESS;
 #endif
   }
