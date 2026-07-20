@@ -4,10 +4,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "madtrex/tupperware.hpp"
+#include "madtrex/madtrex.hpp"
 
 namespace py = pybind11;
 using namespace madtrex;
+using madspace::LHEMeta;
 using madspace::MatrixElementApi;
 
 void bind_madtrex(py::module_ m) {
@@ -232,4 +233,172 @@ void bind_madtrex(py::module_ m) {
             py::return_value_policy::reference_internal
         )
         .def("built", &WareHouse::built);
+
+    // ---- LHE loading/writing, LheFormat ----
+    // detect_lhe_format()/load_lhe() sniff a path's leading bytes (NumPy magic
+    // vs LHEF XML) rather than trusting the extension; see madtrex.hpp/
+    // binary_io.hpp. The std::istream-taking load_lhe_xml() and
+    // madspace::EventFile-taking load_lhe_binary() overloads aren't bound --
+    // Python callers have a path string, not an already-open C++ stream/file
+    // handle.
+    py::enum_<LheFormat>(m, "LheFormat")
+        .value("XML", LheFormat::xml)
+        .value("BINARY", LheFormat::binary);
+
+    m.def("detect_lhe_format", &detect_lhe_format, py::arg("path"));
+    m.def(
+        "load_lhe_xml",
+        py::overload_cast<const std::string&>(&load_lhe_xml),
+        py::arg("path")
+    );
+    m.def("load_lhe", &load_lhe, py::arg("path"));
+    m.def(
+        "load_lhe_binary",
+        py::overload_cast<const std::string&, const LHEMeta&>(&load_lhe_binary),
+        py::arg("path"),
+        py::arg("meta") = LHEMeta{}
+    );
+    m.def(
+        "save_weights_binary", &save_weights_binary, py::arg("lhe"), py::arg("path_prefix")
+    );
+
+    // ---- SubProcessSpec / FlavorChannel ----
+    // Read-only introspection views: both are produced by
+    // Driver.load_process()/load_process_directory() parsing a
+    // subprocesses.json (see madtrex.hpp), not meant to be built from
+    // scratch in Python.
+    py::classh<FlavorChannel>(m, "FlavorChannel")
+        .def_readonly("index", &FlavorChannel::index)
+        .def_readonly("pdgs", &FlavorChannel::pdgs)
+        .def_readonly("mirrored", &FlavorChannel::mirrored);
+
+    py::classh<SubProcessSpec>(m, "SubProcessSpec")
+        .def_readonly("incoming", &SubProcessSpec::incoming)
+        .def_readonly("outgoing", &SubProcessSpec::outgoing)
+        .def_readonly("me_path_template", &SubProcessSpec::me_path_template)
+        .def_readonly("source_path", &SubProcessSpec::source_path)
+        .def_readonly("diagram_count", &SubProcessSpec::diagram_count)
+        .def_readonly("flavors", &SubProcessSpec::flavors)
+        .def_readonly("helicities", &SubProcessSpec::helicities);
+
+    // ---- ParamHandler ----
+    // Builder-style methods are bound with reference_internal (unlike
+    // TupperWare's above, which rely on TupperWare being copy-constructible
+    // and fall back to the default copy policy): ParamHandler is meant to be
+    // configured incrementally and its identity matters once its iterators()
+    // are handed to a WareHouse, so returning *this by reference rather than
+    // a detached copy keeps chaining behave like the C++ side.
+    py::classh<ParamHandler>(m, "ParamHandler")
+        .def(py::init<>())
+        .def(
+            "add_api",
+            &ParamHandler::add_api,
+            py::arg("api"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_apis",
+            py::overload_cast<const std::vector<const MatrixElementApi*>&>(
+                &ParamHandler::add_apis
+            ),
+            py::arg("apis"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_apis",
+            py::overload_cast<const WareHouse&>(&ParamHandler::add_apis),
+            py::arg("house"),
+            py::return_value_policy::reference_internal
+        )
+        .def("apis", &ParamHandler::apis)
+        .def(
+            "read_rwgt_card",
+            py::overload_cast<const std::string&>(&ParamHandler::read_rwgt_card),
+            py::arg("rwgt_path"),
+            py::return_value_policy::reference_internal
+        )
+        .def("launch_count", &ParamHandler::launch_count)
+        .def("apply_launch", &ParamHandler::apply_launch, py::arg("idx"))
+        .def("iterators", &ParamHandler::iterators)
+        .def("launch_names", &ParamHandler::launch_names)
+        .def("weight_context", &ParamHandler::weight_context);
+
+    // ---- Driver ----
+    // Driver is not copy-constructible (it owns a WareHouse, which isn't
+    // copyable either), so every method below that returns Driver& must use
+    // reference_internal explicitly -- the default policy would otherwise
+    // try to copy-construct the return value and fail to compile.
+    py::classh<Driver>(m, "Driver")
+        .def(py::init<>())
+        .def(py::init<madspace::ContextPtr>(), py::arg("context"))
+        .def(
+            "set_device_priority",
+            &Driver::set_device_priority,
+            py::arg("priority"),
+            py::return_value_policy::reference_internal
+        )
+        .def("device_priority", &Driver::device_priority)
+        .def(
+            "load_process",
+            &Driver::load_process,
+            py::arg("subprocesses_json_path"),
+            py::arg("param_card") = "",
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "load_process_directory",
+            &Driver::load_process_directory,
+            py::arg("process_directory"),
+            py::arg("param_card") = "",
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "load_param_reweighting",
+            &Driver::load_param_reweighting,
+            py::arg("rwgt_path"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "param_handler",
+            py::overload_cast<>(&Driver::param_handler),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "load_events",
+            &Driver::load_events,
+            py::arg("path"),
+            py::arg("meta") = LHEMeta{},
+            py::return_value_policy::reference_internal
+        )
+        .def("binary_output", &Driver::binary_output)
+        .def(
+            "set_binary_output",
+            &Driver::set_binary_output,
+            py::arg("binary"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "write_weights",
+            &Driver::write_weights,
+            py::arg("path"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "reweight",
+            &Driver::reweight,
+            py::arg("process_directory"),
+            py::arg("events_path"),
+            py::arg("output_path"),
+            py::arg("rwgt_path") = "",
+            py::arg("param_card") = "",
+            py::arg("meta") = LHEMeta{},
+            py::return_value_policy::reference_internal
+        )
+        .def("context", &Driver::context)
+        .def(
+            "warehouse",
+            py::overload_cast<>(&Driver::warehouse),
+            py::return_value_policy::reference_internal
+        )
+        .def("specs", &Driver::specs);
 }

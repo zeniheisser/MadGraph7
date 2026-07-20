@@ -685,19 +685,16 @@ class MadgraphProcess:
         output_format = self.run_card["run"]["output_format"]
         if output_format == "compact_npy":
             self.lhe_completer = None
-            self.event_generator.combine_to_compact_npy(
-                os.path.join(self.run_path, "events.npy")
-            )
+            self.events_path = os.path.join(self.run_path, "events.npy")
+            self.event_generator.combine_to_compact_npy(self.events_path)
         elif output_format == "lhe_npy":
             self.lhe_completer = self.build_lhe_completer()
-            self.event_generator.combine_to_lhe_npy(
-                os.path.join(self.run_path, "events.npy"), self.lhe_completer
-            )
+            self.events_path = os.path.join(self.run_path, "events.npy")
+            self.event_generator.combine_to_lhe_npy(self.events_path, self.lhe_completer)
         elif output_format == "lhe":
             self.lhe_completer = self.build_lhe_completer()
-            self.event_generator.combine_to_lhe(
-                os.path.join(self.run_path, "events.lhe"), self.lhe_completer
-            )
+            self.events_path = os.path.join(self.run_path, "events.lhe")
+            self.event_generator.combine_to_lhe(self.events_path, self.lhe_completer)
         else:
             raise ValueError("Unknown output format")
         self.save_gridpack()
@@ -1637,13 +1634,25 @@ def compute_auto_widths(param_card_path=os.path.join("Cards", "param_card.dat"))
             pass
 
 
-def run_single() -> "MadgraphProcess":
-    """Run a single generation and return the process (for its result)."""
+def run_single(reweight_card: str | None = None) -> "MadgraphProcess":
+    """Run a single generation and return the process (for its result). If
+    reweight_card is given, runs MadtRex reweighting immediately afterward
+    against the events this call just generated (see madtrex.py)."""
     compute_auto_widths()
     process = MadgraphProcess()
     process.survey()
     process.train_madnis()
     process.generate_events()
+    if reweight_card:
+        if process.run_card["run"]["output_format"] == "compact_npy":
+            raise ValueError(
+                "--reweight requires run_card [run] output_format to be 'lhe' "
+                "or 'lhe_npy': 'compact_npy' discards the per-event flavor/"
+                "helicity information MadtRex needs to match events to the "
+                "matrix element library"
+            )
+        from madgraph.iolibs.template_files.mg7.madtrex import run_reweighting
+        run_reweighting(reweight_card, events_path=process.events_path)
     return process
 
 
@@ -1673,12 +1682,13 @@ def detect_param_scan(param_card_path):
     return None
 
 
-def run_scan(iterator, card_path) -> None:
+def run_scan(iterator, card_path, reweight_card: str | None = None) -> None:
     """Iterate over all scan points, running a full generation for each and
     accumulating the results, then write the scan summary. Works for both the
     run_card (RunCardIterator) and the param_card (ParamCardIterator); their
     interface (__iter__/write/store_entry/get_next_name/write_summary) is the
-    same. The scan card is restored afterwards."""
+    same. The scan card is restored afterwards. reweight_card, if given, is
+    forwarded to run_single() so every scan point is reweighted in turn."""
     import tomllib
     with open(os.path.join("Cards", "run_card.toml"), "rb") as f:
         run_name = tomllib.load(f).get("run", {}).get("run_name", "run")
@@ -1692,7 +1702,7 @@ def run_scan(iterator, card_path) -> None:
         for i, point in enumerate(iterator):
             point.write(card_path)
             logger.info("=== scan point %d ===", i + 1)
-            process = run_single()
+            process = run_single(reweight_card)
             # use the run directory the process actually created, so the
             # per-point params.dat written by write_summary has a home
             name = os.path.basename(process.run_path)
@@ -1711,9 +1721,11 @@ def run_scan(iterator, card_path) -> None:
         shutil.move(backup, card_path)
 
 
-def run_generation() -> None:
+def run_generation(reweight_card: str | None = None) -> None:
     """Run the generation, expanding a scan over the run_card or the param_card
-    when one is present (scanning both simultaneously is not allowed)."""
+    when one is present (scanning both simultaneously is not allowed).
+    reweight_card, if given, is forwarded to run_single()/run_scan() to run
+    MadtRex reweighting immediately after each generation (see madtrex.py)."""
     run_card_path = os.path.join("Cards", "run_card.toml")
     param_card_path = os.path.join("Cards", "param_card.dat")
     run_iter = detect_run_scan(run_card_path)
@@ -1723,16 +1735,21 @@ def run_generation() -> None:
             "Scanning simultaneously over the run_card and the param_card is "
             "not allowed. Please keep the scan:[...] entries in only one card.")
     if run_iter:
-        run_scan(run_iter, run_card_path)
+        run_scan(run_iter, run_card_path, reweight_card)
     elif param_iter:
-        run_scan(param_iter, param_card_path)
+        run_scan(param_iter, param_card_path, reweight_card)
     else:
-        run_single()
+        run_single(reweight_card)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", action="store_false", dest="ask_edit_cards")
+    parser.add_argument(
+        "--reweight", dest="reweight_card", default=None,
+        help="run MadtRex reweighting immediately after event generation, "
+             "using this reweight card (eg Cards/reweight_card.dat)",
+    )
     args = parser.parse_args()
     if args.ask_edit_cards:
         ask_edit_cards()
@@ -1741,4 +1758,4 @@ def main() -> None:
     soft_lim, hard_lim = resource.getrlimit(resource.RLIMIT_NOFILE)
     resource.setrlimit(resource.RLIMIT_NOFILE, (hard_lim, hard_lim))
 
-    run_generation()
+    run_generation(args.reweight_card)

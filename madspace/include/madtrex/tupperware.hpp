@@ -22,9 +22,25 @@
 #include "madspace/driver/context.hpp"
 
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace madtrex {
+
+namespace detail {
+// Internal, not part of the public TupperWare/WareHouse API. api's
+// process_instance() resolves to a per-thread instance via
+// madspace::ThreadPool::thread_index(), a thread_local that defaults to 0 on
+// any thread that isn't a madspace ThreadPool worker; REX::tea::threadPool
+// (both for procReweightor evaluation and, potentially, madtrex::ParamHandler
+// iterators run from within one) spawns its own plain std::threads, which all
+// resolve to instance slot 0. Every call into api that touches that instance
+// -- MatrixElementApi::call() in make_weightor()'s evaluate(), and
+// set_parameter()/get_parameter() from madtrex::ParamHandler -- goes through
+// this same per-api mutex so they can't race regardless of which thread pool
+// (if any) ends up invoking them.
+std::mutex& api_call_mutex(const madspace::MatrixElementApi& api);
+} // namespace detail
 
 // Converts an already-loaded madspace::MatrixElementApi into a REX::tea::weightor.
 // Input keys are auto-derived from api.required_inputs()/supported_inputs(),
@@ -132,6 +148,16 @@ public:
     TupperWare& set_event_checker(REX::eventBelongs checker);
     TupperWare& set_event_checker(std::shared_ptr<REX::eventBelongs> checker);
     TupperWare& set_event_checker(REX::event_bool_fn checker);
+
+    // The MatrixElementApis registered via add_api()/set_api() (reweight
+    // functions only; not the separate normaliser, if any -- it is almost
+    // always one of these same apis anyway). Exposed so external code that
+    // needs direct access to the underlying apis themselves rather than the
+    // weightor::procReweightor wrapping them -- eg madtrex::ParamHandler,
+    // for driving parameter reweighting straight through
+    // MatrixElementApi::set_parameter() -- doesn't need its own separate
+    // tracking of "which apis did this WareHouse load".
+    const std::vector<const madspace::MatrixElementApi*>& apis() const { return _apis; }
 
     // Builds the procReweightor from the registered apis and event checker.
     // Throws if no apis or no event checker have been registered.

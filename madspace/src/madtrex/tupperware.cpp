@@ -9,22 +9,12 @@
 
 namespace madtrex {
 
-namespace {
+namespace detail {
 
-using madspace::MatrixElementApi;
-
-// MatrixElementApi::process_instance() resolves to a per-thread instance via
-// madspace::ThreadPool::thread_index(), a thread_local that defaults to 0 on any
-// thread that isn't a madspace ThreadPool worker. REX::tea::threadPool (used to
-// parallelise reweightor::run_iteration() across procReweightors) spawns its own
-// plain std::threads, so every one of those threads resolves to instance slot 0 for
-// a given api. If two procReweightors ever wrap the same underlying
-// MatrixElementApi and get evaluated concurrently, that's a data race on a single
-// UMAMI instance. Serialize calls per api to make that safe regardless of which
-// thread pool ends up invoking the weightor.
-std::mutex& api_call_mutex(const MatrixElementApi& api) {
+std::mutex& api_call_mutex(const madspace::MatrixElementApi& api) {
     static std::mutex registry_mutex;
-    static std::unordered_map<const MatrixElementApi*, std::unique_ptr<std::mutex>> registry;
+    static std::unordered_map<const madspace::MatrixElementApi*, std::unique_ptr<std::mutex>>
+        registry;
     std::lock_guard<std::mutex> lock(registry_mutex);
     auto& slot = registry[&api];
     if (!slot) {
@@ -32,6 +22,12 @@ std::mutex& api_call_mutex(const MatrixElementApi& api) {
     }
     return *slot;
 }
+
+} // namespace detail
+
+namespace {
+
+using madspace::MatrixElementApi;
 
 // umami_supported_inputs/umami_required_inputs/umami_supported_outputs are optional
 // symbols: MatrixElementApi falls back to a stub that reports
@@ -190,7 +186,7 @@ std::shared_ptr<std::vector<double>> evaluate(
     }
 
     {
-        std::lock_guard<std::mutex> guard(api_call_mutex(api));
+        std::lock_guard<std::mutex> guard(detail::api_call_mutex(api));
         api.call(
             api.process_instance(),
             count,

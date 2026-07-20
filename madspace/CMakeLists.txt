@@ -456,6 +456,9 @@ python_add_library(
     src/python/madtrex.cpp
     src/python/madtrex.hpp
     src/madtrex/tupperware.cpp
+    src/madtrex/madtrex.cpp
+    src/madtrex/binary_io.cpp
+    src/madtrex/param_handler.cpp
     src/madtrex/Rex.cc
     src/madtrex/teaRex.cc
     WITH_SOABI

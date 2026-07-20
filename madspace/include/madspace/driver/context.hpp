@@ -1,7 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "madspace/compgraphs.hpp"
 #include "madspace/driver/tensor.hpp"
@@ -108,6 +110,28 @@ public:
 
     void* process_instance() const { return _instances.get().get(); }
 
+    // Whether the loaded library actually implements umami_set_parameter/
+    // umami_get_parameter (both optional symbols; a library built without
+    // them still loads fine, it just can't be parameter-reweighted in place
+    // and set_parameter()/get_parameter() will throw UMAMI_ERROR_NOT_IMPLEMENTED
+    // if called anyway).
+    bool supports_set_parameter() const noexcept { return _has_set_parameter; }
+    bool supports_get_parameter() const noexcept { return _has_get_parameter; }
+
+    // Directly sets/reads an independent, SLHA-card-level model parameter on
+    // this api's process_instance() -- see umami_set_parameter/
+    // umami_get_parameter in umami.h for the accepted forms of name (model
+    // name, eg "mdl_MT", or SLHA location, eg "mass 6"). Unlike rewriting the
+    // param card and reloading the library, this mutates the already-loaded
+    // instance in place, so callers evaluating the matrix element
+    // concurrently on the same instance must synchronize against that (see
+    // madtrex::detail::api_call_mutex, used by both
+    // madtrex::TupperWare-derived weightors and madtrex::ParamHandler for
+    // exactly this reason). Throws on UMAMI_ERROR_UNKNOWN_PARAMETER (name is
+    // not a settable/known parameter) or if the symbol isn't implemented.
+    void set_parameter(const std::string& name, double real, double imag = 0.0) const;
+    std::pair<double, double> get_parameter(const std::string& name) const;
+
 private:
     MatrixElementApi(
         const std::string& file,
@@ -126,6 +150,10 @@ private:
     decltype(&umami_supported_outputs) _supported_outputs;
     decltype(&umami_initialize) _initialize;
     decltype(&umami_matrix_element) _matrix_element;
+    decltype(&umami_set_parameter) _set_parameter;
+    decltype(&umami_get_parameter) _get_parameter;
+    bool _has_set_parameter;
+    bool _has_get_parameter;
     decltype(&umami_free) _free;
     using InstanceType = std::unique_ptr<void, std::function<void(void*)>>;
     ThreadResource<InstanceType> _instances;

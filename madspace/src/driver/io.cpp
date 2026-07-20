@@ -114,10 +114,10 @@ read_event_header(std::fstream& file_stream, const DataLayout& layout) {
     if (!descr.is_array() || descr.size() < event_field_count ||
         (descr.size() - event_field_count) % particle_field_count != 0 ||
         !fortran_order.is_boolean() || fortran_order.get<bool>() ||
-        header_shape.is_array() || header_shape.size() != 1) {
+        !header_shape.is_array() || header_shape.size() != 1) {
         throw std::runtime_error("Invalid header for event file");
     }
-    std::size_t particle_count = (descr.size() - event_field_count) / 5;
+    std::size_t particle_count = (descr.size() - event_field_count) / particle_field_count;
     std::size_t event_count = header_shape.at(0).get<std::size_t>();
 
     auto field_descr = full_descr(particle_count, layout);
@@ -244,10 +244,6 @@ EventFile::EventFile(
     } else {
         std::tie(_header_size, _particle_count, _event_count) =
             read_event_header(_file_stream, layout);
-        if (mode == EventFile::load) {
-            std::tie(_header_size, _shape_pos) =
-                write_event_header(_file_stream, particle_count, layout, _header_size);
-        }
         _capacity = _event_count;
     }
 }

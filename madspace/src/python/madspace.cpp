@@ -231,7 +231,21 @@ PYBIND11_MODULE(_madspace_py, m) {
         .def("particle_count", &MatrixElementApi::particle_count)
         .def("diagram_count", &MatrixElementApi::diagram_count)
         .def("helicity_count", &MatrixElementApi::helicity_count)
-        .def("index", &MatrixElementApi::index);
+        .def("index", &MatrixElementApi::index)
+        .def("file_name", &MatrixElementApi::file_name)
+        .def("supported_inputs", &MatrixElementApi::supported_inputs)
+        .def("required_inputs", &MatrixElementApi::required_inputs)
+        .def("supported_outputs", &MatrixElementApi::supported_outputs)
+        .def("supports_set_parameter", &MatrixElementApi::supports_set_parameter)
+        .def("supports_get_parameter", &MatrixElementApi::supports_get_parameter)
+        .def(
+            "set_parameter",
+            &MatrixElementApi::set_parameter,
+            py::arg("name"),
+            py::arg("real"),
+            py::arg("imag") = 0.0
+        )
+        .def("get_parameter", &MatrixElementApi::get_parameter, py::arg("name"));
 
     py::classh<Tensor>(m, "Tensor", py::dynamic_attr())
         .def(

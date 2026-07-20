@@ -12,6 +12,12 @@ using json = nlohmann::json;
 
 namespace {
 UmamiStatus umami_key_query_not_implemented(bool const**, int*) { return UMAMI_ERROR_NOT_IMPLEMENTED; }
+UmamiStatus umami_set_parameter_not_implemented(UmamiHandle, char const*, double, double) {
+    return UMAMI_ERROR_NOT_IMPLEMENTED;
+}
+UmamiStatus umami_get_parameter_not_implemented(UmamiHandle, char const*, double*, double*) {
+    return UMAMI_ERROR_NOT_IMPLEMENTED;
+}
 } // namespace
 
 MatrixElementApi::MatrixElementApi(
@@ -86,6 +92,25 @@ MatrixElementApi::MatrixElementApi(
         );
     }
 
+    // Also optional: older generated libraries predate umami_set_parameter/
+    // umami_get_parameter and only support parameter changes via a rewritten
+    // param card + relaunch.
+    _set_parameter = reinterpret_cast<decltype(&umami_set_parameter)>(
+        dlsym(_shared_lib.get(), "umami_set_parameter")
+    );
+    _has_set_parameter = _set_parameter != nullptr;
+    if (!_has_set_parameter) {
+        _set_parameter = umami_set_parameter_not_implemented;
+    }
+
+    _get_parameter = reinterpret_cast<decltype(&umami_get_parameter)>(
+        dlsym(_shared_lib.get(), "umami_get_parameter")
+    );
+    _has_get_parameter = _get_parameter != nullptr;
+    if (!_has_get_parameter) {
+        _get_parameter = umami_get_parameter_not_implemented;
+    }
+
     _free =
         reinterpret_cast<decltype(&umami_free)>(dlsym(_shared_lib.get(), "umami_free"));
     if (_free == nullptr) {
@@ -122,6 +147,8 @@ void MatrixElementApi::check_umami_status(UmamiStatus status) const {
         throw_error("unsupported metadata key");
     case UMAMI_ERROR_MISSING_INPUT:
         throw_error("missing input");
+    case UMAMI_ERROR_UNKNOWN_PARAMETER:
+        throw_error("unknown or non-settable parameter");
     default:
         throw_error("unknown error");
     }
@@ -131,6 +158,16 @@ void MatrixElementApi::throw_error(const std::string& message) const {
     throw std::runtime_error(
         std::format("Error in call to matrix element API {}: {}", _file_name, message)
     );
+}
+
+void MatrixElementApi::set_parameter(const std::string& name, double real, double imag) const {
+    check_umami_status(_set_parameter(process_instance(), name.c_str(), real, imag));
+}
+
+std::pair<double, double> MatrixElementApi::get_parameter(const std::string& name) const {
+    double real = 0.0, imag = 0.0;
+    check_umami_status(_get_parameter(process_instance(), name.c_str(), &real, &imag));
+    return {real, imag};
 }
 
 const MatrixElementApi&

@@ -27,6 +27,8 @@
 // to utilise scattering amplitudes safely.
 
 #pragma once
+#include "binary_io.hpp"
+#include "param_handler.hpp"
 #include "tupperware.hpp"
 
 #include <nlohmann/json.hpp>
@@ -41,8 +43,21 @@ namespace madtrex {
 
 using namespace madspace;
 
+    // Which on-disk representation a set of reweighting events came from, or
+    // should be written back out as: LHEF XML, or MadGraph7's default
+    // internal binary EventFile format (io.hpp).
+    enum class LheFormat { xml, binary };
+
+    // Peeks at path's first bytes to tell a madspace binary EventFile (NumPy
+    // magic "\x93NUMPY", see io.cpp's write_event_header) apart from LHEF
+    // XML, without relying on the file extension. Throws if path cannot be
+    // opened.
+    LheFormat detect_lhe_format(const std::string& path);
+
     std::shared_ptr<REX::lhe> load_lhe_xml(const std::string& path);
     std::shared_ptr<REX::lhe> load_lhe_xml(std::istream& stream);
+    // Dispatches to load_lhe_xml or madtrex::load_lhe_binary based on
+    // detect_lhe_format(path).
     std::shared_ptr<REX::lhe> load_lhe(const std::string& path);
 
     // ---------------------------------------------------------------------
@@ -140,7 +155,9 @@ using namespace madspace;
     // corresponds to one MadGraph7 process directory (eg PROCMG7_sm_2):
     // load_process_directory()/load_process() may be called more than once to
     // register subprocesses from several subprocesses.json files into the same
-    // WareHouse before calling warehouse().build(lhe).
+    // WareHouse before calling load_events() (or warehouse().build(lhe)
+    // directly, if the events are already in hand as a REX::lhe rather than
+    // on disk).
     class Driver {
     public:
         Driver();
@@ -166,6 +183,78 @@ using namespace madspace;
         // Convenience: process_directory/SubProcesses/subprocesses.json.
         Driver& load_process_directory(const std::string& process_directory, const std::string& param_card = "");
 
+        // Configures UMAMI-direct parameter reweighting: builds (or
+        // replaces) the owned ParamHandler over every matrix element api
+        // registered so far (ie everything load_process()/
+        // load_process_directory() has loaded up to this call -- call this
+        // after those, not before), parses rwgt_path, and wires the
+        // resulting iterators/launch_names onto the WareHouse via
+        // warehouse().set_iterators()/set_launch_names(). Must be called
+        // before load_events() (or warehouse().build()), since that is what
+        // actually captures the WareHouse's current iterators/launch_names
+        // into the built reweightor. Requires every registered api to
+        // implement umami_set_parameter (see ParamHandler::add_api); throws
+        // otherwise -- for libraries that don't, build the iterators from
+        // REX::tea::param_rwgt's file-based approach instead and pass them to
+        // warehouse().set_iterators() directly.
+        Driver& load_param_reweighting(const std::string& rwgt_path);
+
+        ParamHandler& param_handler();
+        const ParamHandler& param_handler() const;
+
+        // Loads the event source the reweighting will run against: sniffs
+        // path via detect_lhe_format() to decide between MadGraph7's
+        // internal binary EventFile format and LHEF XML, loads it
+        // accordingly, and builds the WareHouse's REX::tea::reweightor
+        // against the result (ie warehouse().build(*load_lhe(path))).
+        // meta supplies init-block information (beam ids/energies, xsec,
+        // PDF set) for the binary path, which -- unlike LHEF -- stores none
+        // of that on disk; ignored when path is XML, whose own <init> block
+        // is used instead. Also sets binary_output() to match the detected
+        // input format, so write_weights() round-trips to the same
+        // representation by default; call set_binary_output() afterwards to
+        // override. May be called again to rebuild against a different
+        // event source, discarding any previously-built reweightor (see
+        // WareHouse::build()).
+        Driver& load_events(const std::string& path, const madspace::LHEMeta& meta = {});
+
+        // Which format write_weights() targets: true for
+        // madtrex::save_weights_binary() (one weight-only binary EventFile
+        // per weight id), false for a full LHEF XML rewrite via
+        // REX::write_lhef() (events plus every recorded weight). Defaults to
+        // whatever load_events() last detected; false if load_events() was
+        // never called.
+        bool binary_output() const;
+        Driver& set_binary_output(bool binary);
+
+        // Writes out whatever weights are currently recorded on the built
+        // reweightor's events (ie warehouse().get(), typically after
+        // REX::tea::reweightor::run()) via save_weights_binary(path) or
+        // REX::write_lhef(path), according to binary_output(). Throws if
+        // the WareHouse hasn't been built yet (see load_events()).
+        Driver& write_weights(const std::string& path);
+
+        // End-to-end convenience running the entire pipeline in one call:
+        // load_process_directory(process_directory, param_card), then --
+        // if rwgt_path is non-empty -- load_param_reweighting(rwgt_path),
+        // then load_events(events_path, meta), then
+        // warehouse().get().run() (REX::tea::reweightor's full setup/
+        // run_all_iterations/finalise_reweighting loop), then
+        // write_weights(output_path). rwgt_path may be left empty to skip
+        // parameter reweighting (eg when every process's WareHouse entry
+        // already fully determines its own reweighting via
+        // add_api()/set_normaliser() and needs no per-iteration parameter
+        // changes at all). Returns *this so eg driver.reweight(...).warehouse()
+        // stays chainable for inspecting the result afterwards.
+        Driver& reweight(
+            const std::string& process_directory,
+            const std::string& events_path,
+            const std::string& output_path,
+            const std::string& rwgt_path = "",
+            const std::string& param_card = "",
+            const madspace::LHEMeta& meta = {}
+        );
+
         madspace::ContextPtr context() const;
         WareHouse& warehouse();
         const WareHouse& warehouse() const;
@@ -176,6 +265,8 @@ using namespace madspace;
         std::vector<std::string> _device_priority = {"cpp512z", "cpp512y", "cppavx2", "cppsse4", "cppnone"};
         WareHouse _warehouse;
         std::vector<SubProcessSpec> _specs;
+        ParamHandler _param_handler;
+        bool _binary_output = false;
     };
 
 }
