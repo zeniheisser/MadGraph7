@@ -57,6 +57,31 @@ std::optional<std::vector<bool>> try_supported_outputs(const MatrixElementApi& a
     }
 }
 
+// LHECompleter (madspace/src/driver/lhe_output.cpp, complete_event_data())
+// can insert status==2 intermediate resonance lines into events whose
+// propagator falls inside its Breit-Wigner window. Those lines matter for
+// LHE consumers but are not part of what a compiled matrix element expects
+// as external legs (api.particle_count() only counts incoming+outgoing
+// partons), so the per-event view fed to UMAMI must exclude them. Builds a
+// fresh process from copies of proc.events with per-event indices
+// restricted to non-intermediate (status != 2) partons, leaving proc and
+// its underlying (possibly shared) events untouched.
+REX::process external_legs_process(REX::process& proc) {
+    std::vector<REX::event> filtered_events;
+    filtered_events.reserve(proc.events.size());
+    for (auto& ev_ptr : proc.events) {
+        REX::event copy = *ev_ptr;
+        std::vector<std::size_t> external_indices;
+        external_indices.reserve(copy.n_);
+        for (std::size_t i = 0; i < copy.n_; ++i) {
+            if (copy.status_[i] != 2) external_indices.push_back(i);
+        }
+        copy.set_indices(external_indices);
+        filtered_events.push_back(std::move(copy));
+    }
+    return REX::process(std::move(filtered_events), /*filter_partons=*/true, /*column_major=*/false);
+}
+
 void check_particle_counts(const MatrixElementApi& api, REX::process& proc) {
     std::size_t expected = api.particle_count();
     for (std::size_t i = 0; i < proc.size(); ++i) {
@@ -106,7 +131,12 @@ std::shared_ptr<std::vector<double>> evaluate(
     if (count == 0) {
         return std::make_shared<std::vector<double>>();
     }
-    check_particle_counts(api, proc);
+    // external_proc drops any status==2 intermediate resonance lines LHECompleter
+    // may have inserted, so particle counts/momenta match what the matrix element
+    // expects (its external legs); event-level quantities (alphaS/flavor/helicity
+    // below) are unaffected by that filtering and still come from proc directly.
+    REX::process external_proc = external_legs_process(proc);
+    check_particle_counts(api, external_proc);
 
     // Kept alive until after the call below, since input_ptrs points into these.
     std::vector<double> momenta_buf;
@@ -119,13 +149,13 @@ std::shared_ptr<std::vector<double>> evaluate(
     for (auto key : input_keys) {
         switch (key) {
         case UMAMI_IN_MOMENTA:
-            if (!gather_momenta(api, proc)) {
+            if (!gather_momenta(api, external_proc)) {
                 throw std::runtime_error(
                     "make_weightor: failed to gather momenta for UMAMI"
                 );
             }
             active_inputs.push_back(key);
-            input_ptrs.push_back(proc.umami_momenta().data());
+            input_ptrs.push_back(external_proc.umami_momenta().data());
             break;
         case UMAMI_IN_ALPHA_S:
             if (proc.alphaS().size() != count) {

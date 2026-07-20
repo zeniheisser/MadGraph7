@@ -65,8 +65,15 @@ endif
 #=== Makefile TARGETS and build rules below
 #===============================================================================
 
-# The common library name carries the full BACKEND suffix so each vectorisation/GPU variant is distinct.
-MADMATRIX_COMMONLIB = madmatrix_common_$(BACKEND)
+# The common library name carries the model name and the full BACKEND suffix, so each
+# vectorisation/GPU variant is distinct AND libraries from different regenerated model
+# directories (see madtrex.py's regenerate_process_in_model, used by multi-model
+# reweighting) never collide: dlopen resolves a bare NEEDED entry by matching any
+# already-loaded library of that name anywhere in the process, regardless of RUNPATH,
+# so two "libmadmatrix_common_<backend>.so" from different models would otherwise
+# silently alias -- the second model's process code ends up bound to the first
+# model's Parameters implementation.
+MADMATRIX_COMMONLIB = madmatrix_common_%(model)s_$(BACKEND)
 
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
 .DEFAULT_GOAL := all.$(TAG)

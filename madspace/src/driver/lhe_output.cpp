@@ -289,6 +289,15 @@ LHECompleter::LHECompleter(
                         }
                     }
                     std::size_t prop_count = _propagators.size() - prop_offset;
+                    // complete_event_data() inserts up to prop_count synthetic resonance
+                    // particles into events whose diagram/color/flavor combination has
+                    // on-window propagators (see the push_back loop above); the written
+                    // event can therefore be wider than the bare external particle_count,
+                    // and the padded-event buffer must be sized for the worst case here,
+                    // not just particle_count (see combine_to_lhe_npy / max_particle_count()).
+                    if (particle_count + prop_count > _max_particle_count) {
+                        _max_particle_count = particle_count + prop_count;
+                    }
                     if (prop_count > 0) {
                         for (std::size_t i = 0; std::size_t color : colors) {
                             std::size_t prop_color_offset = _propagator_colors.size();

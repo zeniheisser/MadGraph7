@@ -3288,9 +3288,13 @@ class ProcessExporterMG7(ProcessExporterCPP):
         # import here would be circular. Without this, oneprocessclass silently falls back
         # to the base ProcessExporterCPP.oneprocessclass (OneProcessExporterCPP), which lacks
         # the .name attribute (and other MG7-specific behaviour) generate_subprocess_directory
-        # needs.
-        from madgraph.iolibs import export_mg7
-        self.oneprocessclass = export_mg7.OneProcessExporterMG7
+        # needs. Only apply the fallback when nothing more specific was set: subclasses such
+        # as madmatrix.output.ProcessExporterMadMatrix set their own oneprocessclass (with the
+        # coloramps.h/epoch_process_id.h/color_sum.cc/makefile-symlink logic in
+        # OneProcessExporterMadMatrix.generate_process_files()) and that must not be clobbered.
+        if self.oneprocessclass is OneProcessExporterCPP:
+            from madgraph.iolibs import export_mg7
+            self.oneprocessclass = export_mg7.OneProcessExporterMG7
 
     def generate_subprocess_directory(
         self, matrix_element, cpp_helas_call_writer, proc_number=None

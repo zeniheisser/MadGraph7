@@ -418,8 +418,10 @@ else ifeq ($(DEBUG),1)
 endif
 
 # Dependency on src directory
-# The common library name carries the full BACKEND suffix so each vectorisation/GPU variant is distinct.
-MADMATRIX_COMMONLIB = madmatrix_common_$(BACKEND)
+# The common library name carries the model name and the full BACKEND suffix -- see the
+# matching comment in madmatrix_src.mk for why the model name is required (dlopen
+# collisions across regenerated multi-model reweighting directories).
+MADMATRIX_COMMONLIB = madmatrix_common_%(model)s_$(BACKEND)
 LIBFLAGS = -L$(LIBDIR) -l$(MADMATRIX_COMMONLIB)
 INCFLAGS += -I$(SRC)
 
