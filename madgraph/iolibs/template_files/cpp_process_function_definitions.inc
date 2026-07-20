@@ -14,10 +14,18 @@ CPPProcess::CPPProcess(string param_card_name) :
     pars.setIndependentParameters(slha);
     pars.setIndependentCouplings();
     %(initProc_lines)s
-} 
+}
 
 //--------------------------------------------------------------------------
-// Evaluate |M|^2, part independent of incoming flavour. 
+// Re-populate mME from the current model parameters (pars). See declaration in CPPProcess.h.
+
+void CPPProcess::refreshMasses() {
+    mME.clear();
+    %(refreshMasses_lines)s
+}
+
+//--------------------------------------------------------------------------
+// Evaluate |M|^2, part independent of incoming flavour.
 
 double CPPProcess::sigmaKin(int flavor_id) { 
     // Set the parameters which change event by event

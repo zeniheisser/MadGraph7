@@ -33,6 +33,11 @@
     // Parameters::setParameterByName()) has no effect until this is called again; it is
     // called once automatically by initProc().
     static void refreshIndependentParams();
+    // Re-populate a caller-supplied mass vector from the current Parameters singleton,
+    // mirroring what initProc() stores in m_masses. Call after umami_set_parameter
+    // changes a mass parameter so callers of umami_get_meta(UMAMI_META_MASSES,...) see
+    // the updated values.
+    static void refreshExternalMasses( std::vector<fptype>& masses );
 #endif
 
     // Retrieve the compiler that was used to build this module

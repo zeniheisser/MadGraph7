@@ -1570,6 +1570,8 @@ class OneProcessExporterMadMatrix(export_mg7.OneProcessExporterMG7):
         """The complete class definition for the process"""
         replace_dict = super().get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
         replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters::')
+        replace_dict['refreshExternalMasses_lines'] = \
+                               self.get_refresh_external_masses_lines(self.matrix_elements[0])
         couplings2order_indep = []
         ###replace_dict['ncouplings'] = len(self.couplings2order)
         ###replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
@@ -2202,6 +2204,17 @@ class OneProcessExporterMadMatrix(export_mg7.OneProcessExporterMG7):
         ###for i, colamp in enumerate(color_amplitudes):
         ###    initProc_lines.append('jamp2_sv[%d] = new double[%d];' % (i, len(colamp))) # AV - this was commented out already
         return '\n'.join(initProc_lines)
+
+    # Companion to get_initProc_lines: the same external-mass list, but pushed into an
+    # arbitrary "masses" vector instead of m_masses, for CPPProcess::refreshExternalMasses()
+    # (called after umami_set_parameter() overrides a mass so UMAMI_META_MASSES stays in sync;
+    # see madgraph/iolibs/template_files/madmatrix/umami.cc).
+    def get_refresh_external_masses_lines(self, matrix_element):
+        """Get refreshExternalMasses_lines for function definition for CPPProcess::refreshExternalMasses"""
+        lines = ['    // Set external particle masses for this matrix element']
+        for part in matrix_element.get_external_wavefunctions():
+            lines.append('    masses.push_back( m_pars->%s );' % part.get('mass'))
+        return '\n'.join(lines)
 
     # AV - replace the export_cpp.OneProcessExporterCPP method (fix helicity order and improve formatting)
     def get_helicity_matrix(self, matrix_element):

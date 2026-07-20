@@ -331,6 +331,15 @@ namespace mg5amcCpu
 #endif
 #endif%(cipddump)s%(cipcdump)s%(cipfdump)s
   }
+
+  // See declaration in CPPProcess.h for why this exists and when it must be called.
+  void
+  CPPProcess::refreshExternalMasses( std::vector<fptype>& masses )
+  {
+    Parameters* m_pars = Parameters::getInstance();
+    masses.clear();
+%(refreshExternalMasses_lines)s
+  }
 #else
   // Initialize process (with hardcoded parameters)
   void
