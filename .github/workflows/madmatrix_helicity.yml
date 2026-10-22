@@ -1,0 +1,99 @@
+# Branch-free helicities and single-helicity evaluation of madmatrix on the CPU backends
+# (scalar and SIMD), with check_sa.exe of standalone outputs:
+#   checks     .github/gpu_ci/madmatrix_helicity_checks.py: the same |M|^2, helicities and
+#              colours as the reference MadGraph7 (main before the branch-free helicities),
+#              and the polarised |M|^2 (UMAMI_IN_HELICITY_INDEX) add up to the unpolarised one
+#   benchmark  .github/gpu_ci/madmatrix_helicity_bench.py: runtime of the external
+#              wavefunction routines alone and of the whole |M|^2 against the reference
+#              (reported in the job summary, never judged: shared runners are noisy)
+# The GPU backends run the same scripts in job helicity of gpu_runner_ci.yml.
+
+name: madmatrix helicities (CPU)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'aloha/template_files/madmatrix/**'
+      - 'madgraph/iolibs/template_files/madmatrix/**'
+      - 'madmatrix/**'
+      - '.github/gpu_ci/madmatrix_checks.py'
+      - '.github/gpu_ci/madmatrix_helicity_*'
+      - '.github/gpu_ci/wavefunction_bench.cc'
+      - '.github/workflows/madmatrix_helicity.yml'
+  workflow_dispatch:
+    inputs:
+      reference_ref:
+        description: 'Commit of the reference MadGraph7 (default: main before the branch-free helicities)'
+        type: string
+        default: ''
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  REFERENCE_REF: ${{ inputs.reference_ref || '6b7fba490b2d8ea9b7fb0fc6860c8204d190a24e' }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - name: reference MadGraph7
+        run: |
+          git fetch --no-tags --depth 1 origin "$REFERENCE_REF"
+          mkdir -p "$RUNNER_TEMP/reference"
+          git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/reference"
+      - name: backends
+        run: |
+          # scalar first: the reference of the other backends
+          BACKENDS="scalar simd_256"
+          if grep -q avx512f /proc/cpuinfo; then BACKENDS="$BACKENDS simd_512"; fi
+          echo "BACKENDS=$BACKENDS" >> "$GITHUB_ENV"
+          grep -m1 'model name' /proc/cpuinfo
+      - name: checks
+        run: |
+          mkdir -p "$RUNNER_TEMP/checks" && cd "$RUNNER_TEMP/checks"
+          python3 "$GITHUB_WORKSPACE/.github/gpu_ci/madmatrix_helicity_checks.py" --repo "$GITHUB_WORKSPACE" \
+              --reference-repo "$RUNNER_TEMP/reference" --backends $BACKENDS
+      - name: benchmark
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/bench" && cd "$RUNNER_TEMP/bench"
+          python3 "$GITHUB_WORKSPACE/.github/gpu_ci/madmatrix_helicity_bench.py" --repo "$GITHUB_WORKSPACE" \
+              --reference-repo "$RUNNER_TEMP/reference" --backends $BACKENDS
+      - name: job summary
+        if: always()
+        run: |
+          {
+            echo "### madmatrix helicities (CPU: $BACKENDS), reference $REFERENCE_REF"
+            for f in "$RUNNER_TEMP/checks/summary.txt" "$RUNNER_TEMP/bench/summary.txt"; do
+              [ -f "$f" ] || continue
+              echo "| | |"
+              echo "|---|---|"
+              sed 's/|/\\|/g; s/^\([^=]*\)=\(.*\)$/| \1 | \2 |/' "$f"
+              echo
+            done
+            cat "$RUNNER_TEMP/bench/bench.md" 2> /dev/null || echo "No bench.md: the benchmark did not finish."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: collect logs
+        if: always()
+        run: |
+          mkdir -p results
+          for d in checks bench; do
+            (cd "$RUNNER_TEMP/$d" 2> /dev/null && tar -cf - --ignore-failed-read summary.txt bench.md *.mg5 *.log 2> /dev/null) \
+              | (mkdir -p results/$d && tar -xf - -C results/$d) || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: madmatrix-helicity-cpu
+          path: results/
+          if-no-files-found: warn
