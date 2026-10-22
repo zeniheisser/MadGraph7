@@ -10,8 +10,8 @@
 // Every routine is called on nevt random momenta, for every helicity it takes:
 //   uniform  the events of a SIMD vector (GPU warp) share one helicity, as in the
 //            good-helicity loop of sigmaKin;
-//   mixed    every event (SIMD lane, GPU thread) has its own helicity, as with
-//            UMAMI_IN_HELICITY_INDEX: the per-lane helicity on SIMD exists only with
+//   mixed    every event (SIMD lane, GPU thread) has its own helicity, in a random
+//            order, as with UMAMI_IN_HELICITY_INDEX: the per-lane helicity on SIMD exists only with
 //            BENCH_PER_LANE_HELICITY; scalar and GPU code can always do it (one int per
 //            event or thread), but branch on it.
 // Output: one line "RESULT <routine> <mode> <ns per call and event> <checksum>" per routine
@@ -130,10 +130,12 @@ namespace
     }
   }
 
-  // the helicity index of event ievt at step istep of a sweep over the nhel helicities
-  __host__ __device__ inline int ihelOf( const int mode, const int istep, const int ievt, const int nhel )
+  // the helicity index of an event at step istep of a sweep over the nhel helicities: istep
+  // for all (uniform), or shifted by the random offset of the event, 0 to 5 (mixed), so that
+  // the sequence of the helicities of the events cannot be predicted
+  __host__ __device__ inline int ihelOf( const int mode, const int istep, const int offset, const int nhel )
   {
-    return mode == UNIFORM ? istep : ( istep + ievt ) % nhel;
+    return mode == UNIFORM ? istep : ( istep + offset ) % nhel;
   }
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -142,7 +144,7 @@ namespace
   // wavefunctions of the last sweep to dump[ihel][ievt][nw6][2]
   __global__ void
   benchKernel( const int routine, const int mode, const int nrep, const int zero, const fptype_momenta* momenta,
-               fptype_amp* sink, fptype_amp* dump, const int ndump )
+               const int* offsets, fptype_amp* sink, fptype_amp* dump, const int ndump )
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
     const int nhel = nhelOf( routine );
@@ -153,7 +155,7 @@ namespace
     for( int irep = 0; irep < nrep; irep++ )
       for( int istep = 0; istep < nhel; istep++ )
       {
-        const int ihel = ihelOf( mode, istep, ievt, nhel );
+        const int ihel = ihelOf( mode, istep, offsets[ievt], nhel );
         const int hel = helOf( routine, ihel );
         callRoutine<BenchMomenta>( routine, momenta + irep * zero, (helarg_t)hel, obj );
         for( int iw = 0; iw < nw6; iw++ ) sum += cxreal( w[iw] ) + cximag( w[iw] );
@@ -170,7 +172,7 @@ namespace
   // the same in C++, one SIMD page (neppV events) at a time
   fptype_amp
   benchHost( const int routine, const int mode, const int nrep, const int zero, const int nevt,
-             const fptype_momenta* momenta, fptype_amp* dump, const int ndump )
+             const fptype_momenta* momenta, const int* offsets, fptype_amp* dump, const int ndump )
   {
     const int nhel = nhelOf( routine );
     const int npagV = nevt / neppV;
@@ -188,13 +190,13 @@ namespace
           helarg_t hel{};
 #ifdef MGONGPU_CPPSIMD
           for( int ieppV = 0; ieppV < neppV; ieppV++ )
-            hel[ieppV] = helOf( routine, ihelOf( mode, istep, ipagV * neppV + ieppV, nhel ) );
+            hel[ieppV] = helOf( routine, ihelOf( mode, istep, offsets[ipagV * neppV + ieppV], nhel ) );
 #else
-          hel = helOf( routine, ihelOf( mode, istep, ipagV, nhel ) );
+          hel = helOf( routine, ihelOf( mode, istep, offsets[ipagV], nhel ) );
 #endif
 #else
           // an int for the whole page: per event in scalar code only (checked in main)
-          const helarg_t hel = helOf( routine, ihelOf( mode, istep, ipagV, nhel ) );
+          const helarg_t hel = helOf( routine, ihelOf( mode, istep, offsets[ipagV], nhel ) );
 #endif
           callRoutine<BenchMomenta>( routine, page, hel, obj );
           for( int iw = 0; iw < nw6; iw++ ) sum += cxreal( w[iw] ) + cximag( w[iw] );
@@ -202,7 +204,7 @@ namespace
             for( int ieppV = 0; ieppV < neppV; ieppV++ )
             {
               const int ievt = ipagV * neppV + ieppV;
-              const int ihel = ihelOf( mode, istep, ievt, nhel );
+              const int ihel = ihelOf( mode, istep, offsets[ievt], nhel );
               for( int iw = 0; iw < nw6; iw++ )
               {
 #ifdef MGONGPU_CPPSIMD
@@ -286,6 +288,10 @@ main( int argc, char** argv )
 #endif
     }
 
+  // the random helicity offsets of the events (mixed)
+  std::vector<int> hstOffsets( nevt );
+  for( int& offset : hstOffsets ) offset = std::uniform_int_distribution<int>( 0, 5 )( rng );
+
   // the dump of one routine and mode: [ihel][ievt][nw6][2]
   const size_t ndumpval = (size_t)3 * ndump * nw6 * 2;
   std::vector<double> hstDumpAll;
@@ -293,10 +299,13 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
   fptype_momenta* devMomenta;
   fptype_amp *devSink, *devDump;
+  int* devOffsets;
   gpuMalloc( &devMomenta, nmom * sizeof( fptype_momenta ) );
   gpuMalloc( &devSink, nevt * sizeof( fptype_amp ) );
   gpuMalloc( &devDump, ndumpval * sizeof( fptype_amp ) );
   gpuMemcpy( devMomenta, hstMomenta, nmom * sizeof( fptype_momenta ), gpuMemcpyHostToDevice );
+  gpuMalloc( &devOffsets, nevt * sizeof( int ) );
+  gpuMemcpy( devOffsets, hstOffsets.data(), nevt * sizeof( int ), gpuMemcpyHostToDevice );
   std::vector<fptype_amp> hstSink( nevt );
 #endif
 
@@ -320,13 +329,13 @@ main( int argc, char** argv )
         const int reps = itrial == 0 ? 1 : nrep;
         const auto start = std::chrono::steady_clock::now();
 #ifdef MGONGPUCPP_GPUIMPL
-        gpuLaunchKernel( benchKernel, nevt / nthr, nthr, routine, mode, reps, zero, devMomenta, devSink,
+        gpuLaunchKernel( benchKernel, nevt / nthr, nthr, routine, mode, reps, zero, devMomenta, devOffsets, devSink,
                          itrial == 0 ? devDump : nullptr, ndump );
         checkGpu( gpuPeekAtLastError() );
         checkGpu( gpuDeviceSynchronize() );
 #else
-        const double sum = benchHost( routine, mode, reps, zero, nevt, hstMomenta, itrial == 0 ? hstDump.data() : nullptr,
-                                       ndump );
+        const double sum = benchHost( routine, mode, reps, zero, nevt, hstMomenta, hstOffsets.data(),
+                                      itrial == 0 ? hstDump.data() : nullptr, ndump );
 #endif
         const double seconds = std::chrono::duration<double>( std::chrono::steady_clock::now() - start ).count();
 #ifdef MGONGPUCPP_GPUIMPL
@@ -358,6 +367,7 @@ main( int argc, char** argv )
   gpuFree( devMomenta );
   gpuFree( devSink );
   gpuFree( devDump );
+  gpuFree( devOffsets );
 #endif
   std::free( hstMomenta );
   return 0;
