@@ -87,11 +87,13 @@ def read(path, typecode):
     return values
 
 
-def output(repo, name, model, process, backends):
+def output(repo, name, model, process, backends, setup=()):
     """output standalone + make for these backends in every subprocess, keeping the
-    check_sa.exe of each as check_sa_<backend>.exe: the subprocess directories."""
+    check_sa.exe of each as check_sa_<backend>.exe: the subprocess directories. setup: more
+    commands after the import of the model (e.g. 'set gauge FD')."""
     with open(name + '.mg5', 'w') as f:
-        f.write('import model %s\ngenerate %s\noutput standalone %s -f\n' % (model, process, name))
+        f.write('import model %s\n%sgenerate %s\noutput standalone %s -f\n'
+                % (model, ''.join(line + '\n' for line in setup), process, name))
     if run([sys.executable, os.path.join(repo, 'bin', 'madgraph'), name + '.mg5'],
            log=name + '.log') != 0:
         raise RuntimeError('madgraph failed, see %s.log' % name)
