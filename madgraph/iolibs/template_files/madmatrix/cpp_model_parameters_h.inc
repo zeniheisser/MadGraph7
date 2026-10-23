@@ -146,7 +146,18 @@ namespace madmatrix
     // setParameterByName()/getParameterByName() above.
     void registerParameters();
     std::map<std::string, double*> m_real_params;
-    std::map<std::string, cxsmpl<double>*> m_complex_params;
+    // Two separate maps, not one: independent *couplings* (eg GC_72 below)
+    // are declared cxtype, which resolves to cxsmpl<float> at FPTYPE=f, so
+    // this map's value_type has to be cxtype too (a mismatched hardcoded
+    // cxsmpl<double> here fails to compile the moment any coupling is
+    // actually registered below, eg complex effective couplings like
+    // ggH's) -- while independent model *parameters* (eg mdl_I1x33) always
+    // stay plain cxsmpl<double>, matching m_real_params' own always-double
+    // real parameters, and go into m_complex_model_params below instead;
+    // see write_register_parameters()'s own doc comment (export_cpp.py)
+    // for why these can't share one map/type.
+    std::map<std::string, cxtype*> m_complex_params;
+    std::map<std::string, cxsmpl<double>*> m_complex_model_params;
     std::set<std::string> m_settable_params;
     std::map<std::string, double> m_param_overrides;
     std::map<std::string, std::string> m_slha_key_to_name;

@@ -1,6 +1,7 @@
 #include "madtrex/tupperware.hpp"
 
 #include <algorithm>
+#include <any>
 #include <format>
 #include <mutex>
 #include <optional>
@@ -120,121 +121,277 @@ bool gather_momenta(const MatrixElementApi& api, REX::process& proc) {
     return true;
 }
 
+// Owns one device-side scratch allocation used to stage a single input or
+// output across to a CUDA/HIP matrix element library: unlike CPU UMAMI
+// implementations, those expect device-resident pointers, not the host
+// memory REX::process stores its data in. Freed through the same Device
+// regardless of how evaluate() exits (including via check_umami_status's
+// exceptions), so callers don't need their own cleanup path.
+class DeviceScratch {
+public:
+    DeviceScratch() = default;
+    DeviceScratch(madspace::DevicePtr device, std::size_t bytes) : _device(device) {
+        if (bytes > 0) _ptr = _device->allocate(bytes, madspace::AllocHint::normal).first;
+    }
+    ~DeviceScratch() {
+        if (_ptr) _device->free(_ptr);
+    }
+    DeviceScratch(const DeviceScratch&) = delete;
+    DeviceScratch& operator=(const DeviceScratch&) = delete;
+    DeviceScratch(DeviceScratch&& other) noexcept : _device(other._device), _ptr(other._ptr) {
+        other._ptr = nullptr;
+    }
+    DeviceScratch& operator=(DeviceScratch&& other) noexcept {
+        if (this != &other) {
+            if (_ptr) _device->free(_ptr);
+            _device = other._device;
+            _ptr = other._ptr;
+            other._ptr = nullptr;
+        }
+        return *this;
+    }
+    void* get() const { return _ptr; }
+
+private:
+    madspace::DevicePtr _device = nullptr;
+    void* _ptr = nullptr;
+};
+
+// Per-weightor-closure cache of everything evaluate() derives from a
+// REX::process: momenta/alphaS/flavor/helicity (and, on cuda/hip, their
+// device-resident copies) don't change between reweighting iterations --
+// only UMAMI parameters do, via umami_set_parameter -- so gathering them
+// (and, off-cpu, copying them to the device) only needs to happen once per
+// process this weightor ends up bound to, not on every evaluate() call.
+// Output storage (host buffers, and on-device their staging buffers) is
+// also kept here so its *allocation* is reused across iterations, even
+// though its *contents* are still overwritten by every call, since the
+// matrix element's value does change iteration to iteration.
+//
+// Copying an EvalCache -- which happens whenever its owning weightor
+// (and thus its owning procReweightor) is itself copied, eg
+// TupperWare::build()'s rwgts.push_back(*weightor_ptr), or
+// reweightor::extract_sorter()'s max_batch overflow cloning -- deliberately
+// resets to a blank cache rather than duplicating the live buffers: the two
+// copies always end up bound to different processes (or, for max_batch
+// clones, may even run concurrently on different threads), so sharing
+// state across them would be wrong or unsafe. Each repopulates
+// independently on its own first call.
+struct EvalCache {
+    EvalCache() = default;
+    EvalCache(const EvalCache&) : EvalCache() {}
+    EvalCache& operator=(const EvalCache&) {
+        *this = EvalCache();
+        return *this;
+    }
+    EvalCache(EvalCache&&) noexcept = default;
+    EvalCache& operator=(EvalCache&&) noexcept = default;
+
+    const REX::process* proc_id = nullptr; // identifies which process this cache is valid for
+    std::size_t count = 0;
+
+    // The MatrixElementApi instance actually evaluated against for proc_id:
+    // either the api the owning weightor was built with, or -- if built via
+    // the ReloadSpec overload -- a freshly-loaded instance obtained the
+    // first time this cache populated for proc_id. Resolved once per
+    // process (see evaluate()) and reused for every later call against the
+    // same process; resets to nullptr, like the rest of EvalCache, whenever
+    // this weightor's closure is copied (see the copy ctor below), so each
+    // copy resolves (and, with a ReloadSpec, reloads) independently on its
+    // own first use.
+    const MatrixElementApi* active_api = nullptr;
+
+    // Backs input_ptrs[UMAMI_IN_MOMENTA] on cpu; must outlive the cache entry.
+    REX::process external_proc;
+    std::vector<UmamiInputKey> active_inputs;
+    std::vector<void const*> input_ptrs;
+    std::vector<DeviceScratch> input_scratch; // keeps device input buffers alive; empty on cpu
+
+    std::unordered_map<UmamiOutputKey, std::vector<double>> output_buffers;
+    std::vector<void*> output_ptrs; // positional, aligned to output_keys
+    std::vector<DeviceScratch> output_scratch; // reused device output allocation; empty on cpu
+};
+
 std::shared_ptr<std::vector<double>> evaluate(
     const MatrixElementApi& api,
     REX::process& proc,
     const std::vector<UmamiInputKey>& input_keys,
     const std::vector<UmamiOutputKey>& output_keys,
-    const std::vector<UmamiOutputKey>& result_keys
+    const std::vector<UmamiOutputKey>& result_keys,
+    EvalCache& cache,
+    const ReloadSpec* reload = nullptr
 ) {
     std::size_t count = proc.size();
     if (count == 0) {
         return std::make_shared<std::vector<double>>();
     }
-    // external_proc drops any status==2 intermediate resonance lines LHECompleter
-    // may have inserted, so particle counts/momenta match what the matrix element
-    // expects (its external legs); event-level quantities (alphaS/flavor/helicity
-    // below) are unaffected by that filtering and still come from proc directly.
-    REX::process external_proc = external_legs_process(proc);
-    check_particle_counts(api, external_proc);
 
-    // Kept alive until after the call below, since input_ptrs points into these.
-    std::vector<double> momenta_buf;
-
-    std::vector<UmamiInputKey> active_inputs;
-    std::vector<void const*> input_ptrs;
-    active_inputs.reserve(input_keys.size());
-    input_ptrs.reserve(input_keys.size());
-
-    for (auto key : input_keys) {
-        switch (key) {
-        case UMAMI_IN_MOMENTA:
-            if (!gather_momenta(api, external_proc)) {
-                throw std::runtime_error(
-                    "make_weightor: failed to gather momenta for UMAMI"
-                );
-            }
-            active_inputs.push_back(key);
-            input_ptrs.push_back(external_proc.umami_momenta().data());
-            break;
-        case UMAMI_IN_ALPHA_S:
-            if (proc.alphaS().size() != count) {
-                throw std::runtime_error(
-                    "make_weightor: process does not carry a per-event alpha_s "
-                    "value for every event"
-                );
-            }
-            active_inputs.push_back(key);
-            input_ptrs.push_back(proc.alphaS().data());
-            break;
-        case UMAMI_IN_FLAVOR_INDEX:
-            if (proc.flavor().size() != count) {
-                throw std::runtime_error(
-                    "make_weightor: process does not carry a per-event flavor "
-                    "index for every event"
-                );
-            }
-            active_inputs.push_back(key);
-            input_ptrs.push_back(proc.flavor().data());
-            break;
-        case UMAMI_IN_HELICITY_INDEX:
-            if (proc.helicity().size() != count) {
-                throw std::runtime_error(
-                    "make_weightor: process does not carry a per-event helicity "
-                    "index for every event"
-                );
-            }
-            active_inputs.push_back(key);
-            input_ptrs.push_back(proc.helicity().data());
-            break;
-        default:
-            throw std::runtime_error(
-                "make_weightor: input key cannot be derived from a REX::process"
-            );
-        }
+    // Which MatrixElementApi instance this call actually evaluates against:
+    // whichever one was already resolved into the cache for this process
+    // (reused verbatim, cache hit or not -- reloading again on every call
+    // would defeat the purpose of a per-process reload), or, the first time
+    // this cache sees a given process, either a fresh instance (reload set)
+    // or api itself (no reload spec, the pre-existing behavior).
+    const MatrixElementApi* resolved = cache.active_api;
+    bool new_process = cache.proc_id != &proc || cache.count != count;
+    if (!resolved || new_process) {
+        resolved = reload ? &reload->context->load_matrix_element(reload->me_path, reload->param_card)
+                           : &api;
     }
+    const MatrixElementApi& active_api = *resolved;
 
-    std::unordered_map<UmamiOutputKey, std::vector<double>> output_buffers;
-    std::vector<void*> output_ptrs;
-    output_ptrs.reserve(output_keys.size());
-    for (auto key : output_keys) {
-        std::vector<double> buf;
-        switch (key) {
-        case UMAMI_OUT_MATRIX_ELEMENT:
-            buf.assign(count, 0.0);
-            break;
-        case UMAMI_OUT_DIAGRAM_AMP2:
-            buf.assign(api.diagram_count() * count, 0.0);
-            break;
-        default:
-            throw std::runtime_error(
-                "make_weightor: output key is not a reweighting-usable value"
-            );
+    // REX::process always stores its data on the host, but a cuda/hip matrix
+    // element's umami_matrix_element expects device-resident input/output
+    // pointers. When that's the case, inputs are staged through DeviceScratch
+    // buffers copied from the host data below, and outputs are read back into
+    // the host-side output_buffers after the call; on cpu, host pointers are
+    // passed straight through as before.
+    bool on_device = active_api.device_type() != madspace::DeviceType::cpu;
+    madspace::DevicePtr device = on_device ? active_api.device() : nullptr;
+
+    if (new_process) {
+        cache = EvalCache{};
+        cache.proc_id = &proc;
+        cache.count = count;
+        cache.active_api = resolved;
+
+        // external_proc drops any status==2 intermediate resonance lines
+        // LHECompleter may have inserted, so particle counts/momenta match
+        // what the matrix element expects (its external legs); event-level
+        // quantities (alphaS/flavor/helicity below) are unaffected by that
+        // filtering and still come from proc directly.
+        cache.external_proc = external_legs_process(proc);
+        check_particle_counts(active_api, cache.external_proc);
+
+        cache.active_inputs.reserve(input_keys.size());
+        cache.input_ptrs.reserve(input_keys.size());
+
+        auto stage_input = [&](UmamiInputKey key, const void* host_ptr, std::size_t bytes) {
+            cache.active_inputs.push_back(key);
+            if (on_device) {
+                DeviceScratch scratch(device, bytes);
+                device->memcpy(scratch.get(), const_cast<void*>(host_ptr), bytes);
+                cache.input_ptrs.push_back(scratch.get());
+                cache.input_scratch.push_back(std::move(scratch));
+            } else {
+                cache.input_ptrs.push_back(host_ptr);
+            }
+        };
+
+        for (auto key : input_keys) {
+            switch (key) {
+            case UMAMI_IN_MOMENTA:
+                if (!gather_momenta(active_api, cache.external_proc)) {
+                    throw std::runtime_error(
+                        "make_weightor: failed to gather momenta for UMAMI"
+                    );
+                }
+                stage_input(
+                    key,
+                    cache.external_proc.umami_momenta().data(),
+                    cache.external_proc.umami_momenta().size() * sizeof(double)
+                );
+                break;
+            case UMAMI_IN_ALPHA_S:
+                if (proc.alphaS().size() != count) {
+                    throw std::runtime_error(
+                        "make_weightor: process does not carry a per-event alpha_s "
+                        "value for every event"
+                    );
+                }
+                stage_input(key, proc.alphaS().data(), count * sizeof(double));
+                break;
+            case UMAMI_IN_FLAVOR_INDEX:
+                if (proc.flavor().size() != count) {
+                    throw std::runtime_error(
+                        "make_weightor: process does not carry a per-event flavor "
+                        "index for every event"
+                    );
+                }
+                stage_input(key, proc.flavor().data(), count * sizeof(int));
+                break;
+            case UMAMI_IN_HELICITY_INDEX:
+                if (proc.helicity().size() != count) {
+                    throw std::runtime_error(
+                        "make_weightor: process does not carry a per-event helicity "
+                        "index for every event"
+                    );
+                }
+                stage_input(key, proc.helicity().data(), count * sizeof(int));
+                break;
+            default:
+                throw std::runtime_error(
+                    "make_weightor: input key cannot be derived from a REX::process"
+                );
+            }
         }
-        auto [it, inserted] = output_buffers.emplace(key, std::move(buf));
-        output_ptrs.push_back(it->second.data());
+
+        // On device, one DeviceScratch per output_keys entry (positionally
+        // aligned with output_ptrs/output_keys) rather than per unique key,
+        // so it's read back into the right host buffer below regardless of
+        // call order. Allocated once here and reused (overwritten) by every
+        // subsequent call for this process, not freed/reallocated per call.
+        cache.output_ptrs.reserve(output_keys.size());
+        for (auto key : output_keys) {
+            std::size_t buf_size;
+            switch (key) {
+            case UMAMI_OUT_MATRIX_ELEMENT:
+                buf_size = count;
+                break;
+            case UMAMI_OUT_DIAGRAM_AMP2:
+                buf_size = active_api.diagram_count() * count;
+                break;
+            default:
+                throw std::runtime_error(
+                    "make_weightor: output key is not a reweighting-usable value"
+                );
+            }
+            auto [it, inserted] =
+                cache.output_buffers.emplace(key, std::vector<double>(buf_size, 0.0));
+            if (on_device) {
+                cache.output_scratch.emplace_back(device, buf_size * sizeof(double));
+                cache.output_ptrs.push_back(cache.output_scratch.back().get());
+            } else {
+                cache.output_ptrs.push_back(it->second.data());
+            }
+        }
     }
 
     {
-        std::lock_guard<std::mutex> guard(detail::api_call_mutex(api));
-        api.call(
-            api.process_instance(),
+        std::lock_guard<std::mutex> guard(detail::api_call_mutex(active_api));
+        active_api.call(
+            active_api.process_instance(),
             count,
             count,
             0,
-            active_inputs.size(),
-            active_inputs.data(),
-            input_ptrs.data(),
+            cache.active_inputs.size(),
+            cache.active_inputs.data(),
+            cache.input_ptrs.data(),
             output_keys.size(),
             output_keys.data(),
-            output_ptrs.data()
+            cache.output_ptrs.data()
         );
+        if (on_device) {
+            // No caller here ever requests UMAMI_OUT_GPU_STREAM, so
+            // umami_matrix_element is expected to have fully finished (not
+            // just launched) by the time it returns, making it safe to read
+            // the device outputs back immediately. Unlike the inputs above,
+            // this copy-back runs on every call (cache hit or not): the
+            // matrix element's value legitimately changes each iteration.
+            for (std::size_t i = 0; i < output_keys.size(); ++i) {
+                auto& host_buf = cache.output_buffers.at(output_keys[i]);
+                device->memcpy(
+                    host_buf.data(), cache.output_scratch[i].get(),
+                    host_buf.size() * sizeof(double)
+                );
+            }
+        }
     }
 
     auto result = std::make_shared<std::vector<double>>(count, 0.0);
     for (auto key : result_keys) {
-        auto found = output_buffers.find(key);
-        if (found == output_buffers.end()) {
+        auto found = cache.output_buffers.find(key);
+        if (found == cache.output_buffers.end()) {
             throw std::runtime_error(
                 "make_weightor: result key was not among the requested output keys"
             );
@@ -244,7 +401,7 @@ std::shared_ptr<std::vector<double>> evaluate(
                 (*result)[e] += found->second[e];
             }
         } else { // UMAMI_OUT_DIAGRAM_AMP2
-            std::size_t diagrams = api.diagram_count();
+            std::size_t diagrams = active_api.diagram_count();
             for (std::size_t e = 0; e < count; ++e) {
                 for (std::size_t d = 0; d < diagrams; ++d) {
                     (*result)[e] += found->second[d * count + e];
@@ -255,9 +412,285 @@ std::shared_ptr<std::vector<double>> evaluate(
     return result;
 }
 
+// Per-(api, process) device-resident cache for the deferred/cuda-hip
+// evaluation path, attached to the process itself via REX::process's
+// generic, opaque device_data slot (Rex.h) rather than living inside the
+// weightor closure -- unlike EvalCache above. This ties its lifetime
+// directly to the process it was derived from (found/populated fresh
+// whenever a process doesn't already have one under this api's key,
+// destroyed automatically when proc is), and is exactly what
+// process::device_data is documented for: "a standard place to stash and
+// retrieve raw pointers/handles... for off-CPU reweighting functions."
+// A pleasant consequence: unlike EvalCache, the closure that uses this
+// needs no mutable captured state and no reset-on-copy trick to stay safe
+// under procReweightor cloning (eg reweightor::extract_sorter()'s
+// max_batch overflow clones) -- a cloned closure just looks up
+// device_data on whatever process it ends up bound to, which naturally
+// starts out unpopulated for a different process.
+//
+// Only ever used for cuda/hip apis (see make_deferred_weightor), so unlike
+// EvalCache it needs no cpu fallback: every input is always staged to
+// device, and every output always lives in an N-iteration-wide device
+// buffer -- one contiguous allocation per output key, sized for exactly
+// n_iterations calls, since deferring the copy-back means each iteration's
+// result must survive, un-overwritten, until it's actually pulled at
+// pull_deferred_backlog() time.
+struct DeferredDeviceCache {
+    std::size_t count = 0;
+    std::size_t n_iterations = 0;
+    std::size_t next_iter = 0;
+
+    // As EvalCache::active_api: the MatrixElementApi instance actually
+    // evaluated against for this process -- either the api the owning
+    // deferred_weightor was built with, or, if built via the ReloadSpec
+    // overload, a freshly-loaded instance obtained when this cache was
+    // first populated. Since this cache already lives per-process (via
+    // proc.device_data), no separate "is this a new process" bookkeeping is
+    // needed here the way EvalCache needs it: a fresh process simply has no
+    // device_data yet, so its cache -- and this field -- start blank.
+    const MatrixElementApi* active_api = nullptr;
+
+    std::vector<UmamiInputKey> active_inputs;
+    std::vector<void const*> input_ptrs; // device pointers
+    std::vector<DeviceScratch> input_scratch;
+
+    std::unordered_map<UmamiOutputKey, DeviceScratch> output_scratch; // one N-iteration-wide buffer per key
+    std::unordered_map<UmamiOutputKey, std::size_t> per_iter_elems;
+};
+
+// Unique per api instance (pointer identity, stable for the api's
+// lifetime -- MatrixElementApis are owned indefinitely by their Context),
+// so multiple deferred apis evaluating the same process don't collide on
+// the same device_data slot.
+std::string deferred_cache_key(const MatrixElementApi& api) {
+    return std::format("madtrex::deferred_weightor::{}", static_cast<const void*>(&api));
+}
+
+REX::tea::weight_puller deferred_evaluate(
+    const MatrixElementApi& api,
+    REX::process& proc,
+    const std::vector<UmamiInputKey>& input_keys,
+    const std::vector<UmamiOutputKey>& output_keys,
+    const std::vector<UmamiOutputKey>& result_keys,
+    std::size_t n_iterations,
+    const ReloadSpec* reload = nullptr
+) {
+    std::size_t count = proc.size();
+    if (count == 0) {
+        return []() { return std::make_shared<std::vector<double>>(); };
+    }
+
+    std::string cache_key = deferred_cache_key(api);
+
+    std::shared_ptr<DeferredDeviceCache> cache;
+    if (proc.has_device_data(cache_key)) {
+        cache = std::any_cast<std::shared_ptr<DeferredDeviceCache>>(proc.get_device_data(cache_key).tag);
+    } else {
+        cache = std::make_shared<DeferredDeviceCache>();
+        cache->count = count;
+        cache->n_iterations = n_iterations;
+        cache->active_api = reload
+            ? &reload->context->load_matrix_element(reload->me_path, reload->param_card)
+            : &api;
+        const MatrixElementApi& active_api = *cache->active_api;
+        madspace::DevicePtr device = active_api.device();
+
+        // Only needed transiently to compute the initial host-side momenta
+        // for the one-time copy to device below; unlike EvalCache's
+        // external_proc, nothing here keeps it around afterward, since the
+        // deferred path never hands out host pointers.
+        REX::process external_proc = external_legs_process(proc);
+        check_particle_counts(active_api, external_proc);
+
+        cache->active_inputs.reserve(input_keys.size());
+        cache->input_ptrs.reserve(input_keys.size());
+
+        auto stage_input = [&](UmamiInputKey key, const void* host_ptr, std::size_t bytes) {
+            cache->active_inputs.push_back(key);
+            DeviceScratch scratch(device, bytes);
+            device->memcpy(scratch.get(), const_cast<void*>(host_ptr), bytes);
+            cache->input_ptrs.push_back(scratch.get());
+            cache->input_scratch.push_back(std::move(scratch));
+        };
+
+        for (auto key : input_keys) {
+            switch (key) {
+            case UMAMI_IN_MOMENTA:
+                if (!gather_momenta(active_api, external_proc)) {
+                    throw std::runtime_error(
+                        "make_deferred_weightor: failed to gather momenta for UMAMI"
+                    );
+                }
+                stage_input(
+                    key,
+                    external_proc.umami_momenta().data(),
+                    external_proc.umami_momenta().size() * sizeof(double)
+                );
+                break;
+            case UMAMI_IN_ALPHA_S:
+                if (proc.alphaS().size() != count) {
+                    throw std::runtime_error(
+                        "make_deferred_weightor: process does not carry a per-event "
+                        "alpha_s value for every event"
+                    );
+                }
+                stage_input(key, proc.alphaS().data(), count * sizeof(double));
+                break;
+            case UMAMI_IN_FLAVOR_INDEX:
+                if (proc.flavor().size() != count) {
+                    throw std::runtime_error(
+                        "make_deferred_weightor: process does not carry a per-event "
+                        "flavor index for every event"
+                    );
+                }
+                stage_input(key, proc.flavor().data(), count * sizeof(int));
+                break;
+            case UMAMI_IN_HELICITY_INDEX:
+                if (proc.helicity().size() != count) {
+                    throw std::runtime_error(
+                        "make_deferred_weightor: process does not carry a per-event "
+                        "helicity index for every event"
+                    );
+                }
+                stage_input(key, proc.helicity().data(), count * sizeof(int));
+                break;
+            default:
+                throw std::runtime_error(
+                    "make_deferred_weightor: input key cannot be derived from a "
+                    "REX::process"
+                );
+            }
+        }
+
+        for (auto key : output_keys) {
+            std::size_t per_iter;
+            switch (key) {
+            case UMAMI_OUT_MATRIX_ELEMENT:
+                per_iter = count;
+                break;
+            case UMAMI_OUT_DIAGRAM_AMP2:
+                per_iter = active_api.diagram_count() * count;
+                break;
+            default:
+                throw std::runtime_error(
+                    "make_deferred_weightor: output key is not a reweighting-usable "
+                    "value"
+                );
+            }
+            cache->per_iter_elems[key] = per_iter;
+            cache->output_scratch.emplace(
+                key, DeviceScratch(device, per_iter * n_iterations * sizeof(double))
+            );
+        }
+
+        proc.set_device_data(cache_key, nullptr, 0, std::any(cache));
+    }
+
+    // Whether this call populated the cache above or found it already
+    // populated (ie a later iteration against the same process), active_api
+    // is the instance that was resolved -- and, from here on, is the only
+    // one ever evaluated against for this process.
+    const MatrixElementApi& active_api = *cache->active_api;
+    madspace::DevicePtr device = active_api.device();
+
+    if (cache->count != count) {
+        throw std::runtime_error(
+            "make_deferred_weightor: process's event count changed between calls; a "
+            "deferred weightor's device_data cache is only valid for a process whose "
+            "events never change after its first evaluation"
+        );
+    }
+    if (cache->next_iter >= cache->n_iterations) {
+        throw std::runtime_error(
+            "make_deferred_weightor: invoked more times than the reweighting run's "
+            "declared iteration count; the n_iterations passed to "
+            "TupperWare::build()/WareHouse must match how many times the reweightor "
+            "actually iterates"
+        );
+    }
+    std::size_t iter = cache->next_iter++;
+
+    std::vector<void*> output_ptrs;
+    output_ptrs.reserve(output_keys.size());
+    for (auto key : output_keys) {
+        auto& scratch = cache->output_scratch.at(key);
+        std::size_t per_iter = cache->per_iter_elems.at(key);
+        char* base = static_cast<char*>(scratch.get());
+        output_ptrs.push_back(base + iter * per_iter * sizeof(double));
+    }
+
+    {
+        std::lock_guard<std::mutex> guard(detail::api_call_mutex(active_api));
+        active_api.call(
+            active_api.process_instance(),
+            count,
+            count,
+            0,
+            cache->active_inputs.size(),
+            cache->active_inputs.data(),
+            cache->input_ptrs.data(),
+            output_keys.size(),
+            output_keys.data(),
+            output_ptrs.data()
+        );
+        // Deliberately no copy-back here: this iteration's outputs stay on
+        // device, in their own dedicated slice, until the puller below is
+        // invoked -- by pull_deferred_backlog(), once every iteration has
+        // run, not after this one specifically.
+    }
+
+    std::size_t diagrams = active_api.diagram_count();
+    std::vector<std::pair<UmamiOutputKey, void*>> this_iter_output_ptrs;
+    this_iter_output_ptrs.reserve(output_keys.size());
+    for (std::size_t i = 0; i < output_keys.size(); ++i) {
+        this_iter_output_ptrs.emplace_back(output_keys[i], output_ptrs[i]);
+    }
+
+    // cache is captured too, purely as a keep-alive guard: its device
+    // buffers are already guaranteed to outlive this puller via proc's own
+    // device_data (proc stays alive at least through
+    // reweightor::finalise_reweighting(), which is what invokes this), but
+    // holding the shared_ptr here as well costs nothing and removes any
+    // reliance on that reasoning staying true if this code is ever reused
+    // in a context with different lifetime guarantees.
+    return [device, count, diagrams, result_keys,
+            this_iter_output_ptrs = std::move(this_iter_output_ptrs),
+            cache]() -> std::shared_ptr<std::vector<double>> {
+        std::unordered_map<UmamiOutputKey, std::vector<double>> host_buffers;
+        for (auto& [key, dev_ptr] : this_iter_output_ptrs) {
+            std::size_t elems = (key == UMAMI_OUT_DIAGRAM_AMP2) ? diagrams * count : count;
+            std::vector<double> host_buf(elems, 0.0);
+            device->memcpy(host_buf.data(), dev_ptr, elems * sizeof(double));
+            host_buffers.emplace(key, std::move(host_buf));
+        }
+        auto result = std::make_shared<std::vector<double>>(count, 0.0);
+        for (auto key : result_keys) {
+            auto found = host_buffers.find(key);
+            if (found == host_buffers.end()) {
+                throw std::runtime_error(
+                    "make_deferred_weightor: result key was not among the requested "
+                    "output keys"
+                );
+            }
+            if (key == UMAMI_OUT_MATRIX_ELEMENT) {
+                for (std::size_t e = 0; e < count; ++e) {
+                    (*result)[e] += found->second[e];
+                }
+            } else { // UMAMI_OUT_DIAGRAM_AMP2
+                for (std::size_t e = 0; e < count; ++e) {
+                    for (std::size_t d = 0; d < diagrams; ++d) {
+                        (*result)[e] += found->second[d * count + e];
+                    }
+                }
+            }
+        }
+        return result;
+    };
+}
+
 } // namespace
 
-std::vector<UmamiInputKey> default_input_keys(const MatrixElementApi& api) {
+std::vector<UmamiInputKey> default_input_keys(const MatrixElementApi& api, bool use_helicity) {
     auto supported = try_supported_inputs(api);
     if (!supported) {
         throw std::runtime_error(std::format(
@@ -286,9 +719,17 @@ std::vector<UmamiInputKey> default_input_keys(const MatrixElementApi& api) {
                 i
             ));
         }
-        if (is_derivable && (*supported)[i]) {
-            keys.push_back(key);
+        if (!is_derivable || !(*supported)[i]) {
+            continue;
         }
+        // UMAMI_IN_HELICITY_INDEX is opt-in even when supported (see
+        // default_input_keys()'s doc comment): use it whenever the matrix
+        // element requires it outright, otherwise only if the caller
+        // explicitly asked for it via use_helicity.
+        if (key == UMAMI_IN_HELICITY_INDEX && !is_required && !use_helicity) {
+            continue;
+        }
+        keys.push_back(key);
     }
     return keys;
 }
@@ -333,8 +774,118 @@ std::shared_ptr<REX::tea::weightor> make_weightor(
         [api_ptr,
          input_keys = std::move(input_keys),
          output_keys = std::move(output_keys),
-         result_keys = std::move(result_keys)](REX::process& proc) {
-            return evaluate(*api_ptr, proc, input_keys, output_keys, result_keys);
+         result_keys = std::move(result_keys),
+         cache = EvalCache{}](REX::process& proc) mutable {
+            return evaluate(*api_ptr, proc, input_keys, output_keys, result_keys, cache);
+        }
+    );
+}
+
+std::shared_ptr<REX::tea::weightor> make_weightor(
+    const MatrixElementApi& api,
+    std::vector<UmamiInputKey> input_keys,
+    std::vector<UmamiOutputKey> output_keys,
+    std::vector<UmamiOutputKey> result_keys,
+    ReloadSpec reload
+) {
+    if (result_keys.empty()) {
+        result_keys = {UMAMI_OUT_MATRIX_ELEMENT};
+    }
+    for (auto key : result_keys) {
+        if (std::find(output_keys.begin(), output_keys.end(), key) == output_keys.end()) {
+            throw std::runtime_error(
+                "make_weightor: result key must be among the requested output keys"
+            );
+        }
+    }
+
+    const MatrixElementApi* api_ptr = &api;
+    return std::make_shared<REX::tea::weightor>(
+        [api_ptr,
+         input_keys = std::move(input_keys),
+         output_keys = std::move(output_keys),
+         result_keys = std::move(result_keys),
+         reload = std::move(reload),
+         cache = EvalCache{}](REX::process& proc) mutable {
+            return evaluate(*api_ptr, proc, input_keys, output_keys, result_keys, cache, &reload);
+        }
+    );
+}
+
+std::shared_ptr<REX::tea::deferred_weightor>
+make_deferred_weightor(const MatrixElementApi& api, std::size_t n_iterations) {
+    return make_deferred_weightor(
+        api, default_input_keys(api), default_output_keys(api), {UMAMI_OUT_MATRIX_ELEMENT},
+        n_iterations
+    );
+}
+
+std::shared_ptr<REX::tea::deferred_weightor> make_deferred_weightor(
+    const MatrixElementApi& api,
+    std::vector<UmamiInputKey> input_keys,
+    std::vector<UmamiOutputKey> output_keys,
+    std::vector<UmamiOutputKey> result_keys,
+    std::size_t n_iterations
+) {
+    if (result_keys.empty()) {
+        result_keys = {UMAMI_OUT_MATRIX_ELEMENT};
+    }
+    for (auto key : result_keys) {
+        if (std::find(output_keys.begin(), output_keys.end(), key) == output_keys.end()) {
+            throw std::runtime_error(
+                "make_deferred_weightor: result key must be among the requested output "
+                "keys"
+            );
+        }
+    }
+
+    const MatrixElementApi* api_ptr = &api;
+    // Unlike make_weightor's closure, this one needs no mutable captured
+    // state (and hence no `mutable`, no reset-on-copy handling): its cache
+    // lives on the process passed in, not inside the closure -- see
+    // DeferredDeviceCache's doc comment above.
+    return std::make_shared<REX::tea::deferred_weightor>(
+        [api_ptr,
+         input_keys = std::move(input_keys),
+         output_keys = std::move(output_keys),
+         result_keys = std::move(result_keys),
+         n_iterations](REX::process& proc) -> REX::tea::weight_puller {
+            return deferred_evaluate(*api_ptr, proc, input_keys, output_keys, result_keys, n_iterations);
+        }
+    );
+}
+
+std::shared_ptr<REX::tea::deferred_weightor> make_deferred_weightor(
+    const MatrixElementApi& api,
+    std::vector<UmamiInputKey> input_keys,
+    std::vector<UmamiOutputKey> output_keys,
+    std::vector<UmamiOutputKey> result_keys,
+    std::size_t n_iterations,
+    ReloadSpec reload
+) {
+    if (result_keys.empty()) {
+        result_keys = {UMAMI_OUT_MATRIX_ELEMENT};
+    }
+    for (auto key : result_keys) {
+        if (std::find(output_keys.begin(), output_keys.end(), key) == output_keys.end()) {
+            throw std::runtime_error(
+                "make_deferred_weightor: result key must be among the requested output "
+                "keys"
+            );
+        }
+    }
+
+    const MatrixElementApi* api_ptr = &api;
+    return std::make_shared<REX::tea::deferred_weightor>(
+        [api_ptr,
+         input_keys = std::move(input_keys),
+         output_keys = std::move(output_keys),
+         result_keys = std::move(result_keys),
+         n_iterations,
+         reload = std::move(reload)](REX::process& proc) -> REX::tea::weight_puller {
+            return deferred_evaluate(
+                *api_ptr, proc, input_keys, output_keys, result_keys, n_iterations, &reload
+            );
         }
     );
 }
@@ -363,6 +914,22 @@ TupperWare& TupperWare::add_api(
     _apis.push_back(&api);
     _input_keys_list.push_back(std::move(input_keys));
     _output_keys_list.push_back(std::move(output_keys));
+    _reload_specs.push_back(std::nullopt);
+    return *this;
+}
+
+TupperWare& TupperWare::add_api(const madspace::MatrixElementApi& api, ReloadSpec reload) {
+    return add_api(api, {}, {}, std::move(reload));
+}
+
+TupperWare& TupperWare::add_api(
+    const madspace::MatrixElementApi& api,
+    std::vector<UmamiInputKey> input_keys,
+    std::vector<UmamiOutputKey> output_keys,
+    ReloadSpec reload
+) {
+    add_api(api, std::move(input_keys), std::move(output_keys));
+    _reload_specs.back() = std::move(reload);
     return *this;
 }
 
@@ -407,6 +974,7 @@ TupperWare& TupperWare::set_api(std::vector<const madspace::MatrixElementApi*> a
     _apis.clear();
     _input_keys_list.clear();
     _output_keys_list.clear();
+    _reload_specs.clear();
     return add_api(std::move(apis));
 }
 
@@ -418,6 +986,7 @@ TupperWare& TupperWare::set_api(
     _apis.clear();
     _input_keys_list.clear();
     _output_keys_list.clear();
+    _reload_specs.clear();
     return add_api(std::move(apis), std::move(input_keys_list), std::move(output_keys_list));
 }
 
@@ -429,6 +998,7 @@ TupperWare& TupperWare::set_api(
     _apis.clear();
     _input_keys_list.clear();
     _output_keys_list.clear();
+    _reload_specs.clear();
     return add_api(std::move(apis), std::move(input_keys_list), std::move(output_keys_list));
 }
 
@@ -444,11 +1014,32 @@ TupperWare& TupperWare::set_normaliser(
     _normaliser = &api;
     _normaliser_input_keys = std::move(input_keys);
     _normaliser_output_keys = std::move(output_keys);
+    _normaliser_reload.reset();
+    return *this;
+}
+
+TupperWare& TupperWare::set_normaliser(const madspace::MatrixElementApi& api, ReloadSpec reload) {
+    return set_normaliser(api, {}, {}, std::move(reload));
+}
+
+TupperWare& TupperWare::set_normaliser(
+    const madspace::MatrixElementApi& api,
+    std::vector<UmamiInputKey> input_keys,
+    std::vector<UmamiOutputKey> output_keys,
+    ReloadSpec reload
+) {
+    set_normaliser(api, std::move(input_keys), std::move(output_keys));
+    _normaliser_reload = std::move(reload);
     return *this;
 }
 
 TupperWare& TupperWare::set_result_keys(std::vector<UmamiOutputKey> keys) {
     _result_keys = std::move(keys);
+    return *this;
+}
+
+TupperWare& TupperWare::set_use_helicity(bool use_helicity) {
+    _use_helicity = use_helicity;
     return *this;
 }
 
@@ -470,7 +1061,9 @@ TupperWare& TupperWare::set_event_checker(REX::event_bool_fn checker) {
     return *this;
 }
 
-std::shared_ptr<REX::tea::procReweightor> TupperWare::build() {
+std::shared_ptr<REX::tea::procReweightor> TupperWare::build(
+    std::size_t n_iterations, bool reload_per_batch, std::size_t max_deferred_iterations
+) {
     if (_apis.empty()) {
         throw std::runtime_error("TupperWare::build: no matrix elements registered");
     }
@@ -483,23 +1076,46 @@ std::shared_ptr<REX::tea::procReweightor> TupperWare::build() {
                                      : _result_keys;
     };
 
+    // Each api is routed to make_weightor() (cpu) or make_deferred_weightor()
+    // (cuda/hip) by its own device_type() and registered onto proc_rwgt's
+    // single, unified reweight_functions list via add_reweight_function()/
+    // add_deferred_reweight_function(), in registration order -- so amp
+    // slot i (see procReweightor::evaluate(amp)) ends up serviced by
+    // whichever of the two an api resolves to. This is what lets a single
+    // TupperWare mix cpu and off-cpu apis correctly; unlike the old
+    // dual-array procReweightor, there's no longer a separate list per
+    // case to build up and hand over as a batch, so each api is added to
+    // proc_rwgt directly as it's resolved rather than staged into a
+    // same-sized rwgts/deferred_rwgts pair first.
     _weightors.clear();
     _weightors.reserve(_apis.size());
-    std::vector<REX::tea::weightor> rwgts;
-    rwgts.reserve(_apis.size());
+    _deferred_weightors.clear();
+    _deferred_weightors.reserve(_apis.size());
+    auto proc_rwgt = std::make_shared<REX::tea::procReweightor>();
     for (std::size_t i = 0; i < _apis.size(); ++i) {
         const auto& api = *_apis[i];
-        auto input_keys =
-            _input_keys_list[i].empty() ? default_input_keys(api) : _input_keys_list[i];
+        auto input_keys = _input_keys_list[i].empty() ? default_input_keys(api, _use_helicity)
+                                                        : _input_keys_list[i];
         auto output_keys =
             _output_keys_list[i].empty() ? default_output_keys(api) : _output_keys_list[i];
-        auto weightor_ptr = make_weightor(api, input_keys, output_keys, result_keys_for());
-        _weightors.push_back(weightor_ptr);
-        rwgts.push_back(*weightor_ptr);
+        const ReloadSpec* reload =
+            (reload_per_batch && _reload_specs[i]) ? &*_reload_specs[i] : nullptr;
+        if (api.device_type() == madspace::DeviceType::cpu) {
+            auto weightor_ptr = reload
+                ? make_weightor(api, input_keys, output_keys, result_keys_for(), *reload)
+                : make_weightor(api, input_keys, output_keys, result_keys_for());
+            _weightors.push_back(weightor_ptr);
+            proc_rwgt->add_reweight_function(*weightor_ptr);
+        } else {
+            auto deferred_ptr = reload
+                ? make_deferred_weightor(
+                      api, input_keys, output_keys, result_keys_for(), n_iterations, *reload
+                  )
+                : make_deferred_weightor(api, input_keys, output_keys, result_keys_for(), n_iterations);
+            _deferred_weightors.push_back(deferred_ptr);
+            proc_rwgt->add_deferred_reweight_function(*deferred_ptr);
+        }
     }
-
-    auto proc_rwgt = std::make_shared<REX::tea::procReweightor>();
-    proc_rwgt->set_reweight_functions(rwgts);
 
     if (_event_checker) {
         proc_rwgt->event_checker = _event_checker;
@@ -509,13 +1125,20 @@ std::shared_ptr<REX::tea::procReweightor> TupperWare::build() {
     }
 
     if (_normaliser) {
-        auto input_keys = _normaliser_input_keys.empty() ? default_input_keys(*_normaliser)
-                                                           : _normaliser_input_keys;
+        auto input_keys = _normaliser_input_keys.empty()
+            ? default_input_keys(*_normaliser, _use_helicity)
+            : _normaliser_input_keys;
         auto output_keys = _normaliser_output_keys.empty() ? default_output_keys(*_normaliser)
                                                              : _normaliser_output_keys;
-        auto norm_weightor = make_weightor(*_normaliser, input_keys, output_keys, result_keys_for());
+        const ReloadSpec* reload =
+            (reload_per_batch && _normaliser_reload) ? &*_normaliser_reload : nullptr;
+        auto norm_weightor = reload
+            ? make_weightor(*_normaliser, input_keys, output_keys, result_keys_for(), *reload)
+            : make_weightor(*_normaliser, input_keys, output_keys, result_keys_for());
         proc_rwgt->set_normaliser(*norm_weightor);
     }
+
+    proc_rwgt->max_deferred_iterations = max_deferred_iterations;
 
     return proc_rwgt;
 }
@@ -555,10 +1178,40 @@ WareHouse& WareHouse::add_launch_name(const std::string& name) {
     return *this;
 }
 
+const std::vector<std::string>& WareHouse::launch_names() const { return _launch_names; }
+
+WareHouse& WareHouse::set_max_batch(std::size_t max_batch) {
+    _max_batch = max_batch;
+    return *this;
+}
+
+std::size_t WareHouse::max_batch() const { return _max_batch; }
+
+WareHouse& WareHouse::set_max_deferred_iterations(std::size_t max_deferred_iterations) {
+    _max_deferred_iterations = max_deferred_iterations;
+    return *this;
+}
+
+std::size_t WareHouse::max_deferred_iterations() const { return _max_deferred_iterations; }
+
+REX::verbosity& WareHouse::verbose() { return _verbose; }
+
+const REX::verbosity& WareHouse::verbose() const { return _verbose; }
+
+WareHouse& WareHouse::set_verbose(bool v) {
+    _verbose.set_verbose(v);
+    return *this;
+}
+
+bool WareHouse::is_verbose() const { return _verbose.is_verbose(); }
+
 namespace {
 
 std::vector<std::shared_ptr<REX::tea::procReweightor>> build_proc_reweightors(
-    std::vector<TupperWare>& processes
+    std::vector<TupperWare>& processes,
+    std::size_t n_iterations,
+    bool reload_per_batch,
+    std::size_t max_deferred_iterations
 ) {
     if (processes.empty()) {
         throw std::runtime_error("WareHouse::build: no processes registered");
@@ -566,7 +1219,7 @@ std::vector<std::shared_ptr<REX::tea::procReweightor>> build_proc_reweightors(
     std::vector<std::shared_ptr<REX::tea::procReweightor>> result;
     result.reserve(processes.size());
     for (auto& process : processes) {
-        result.push_back(process.build());
+        result.push_back(process.build(n_iterations, reload_per_batch, max_deferred_iterations));
     }
     return result;
 }
@@ -574,7 +1227,20 @@ std::vector<std::shared_ptr<REX::tea::procReweightor>> build_proc_reweightors(
 } // namespace
 
 REX::tea::reweightor& WareHouse::build(REX::lhe&& mother) {
-    auto proc_rwgts = build_proc_reweightors(_processes);
+    // REX::tea::reweightor defaults to a single no-op iteration
+    // ({true_function}) when set_iterators() is never called -- mirror
+    // that here so a deferred/cuda-hip api's device output buffer is sized
+    // for the same number of calls it will actually receive.
+    std::size_t n_iterations = _iterators.empty() ? 1 : _iterators.size();
+    mother.max_batch = _max_batch;
+    // Once max_batch is actually set, every registered api with a
+    // ReloadSpec reloads its own instance per batch instead of every
+    // overflow clone sharing (and serializing calls through) the one
+    // instance it was registered with; see TupperWare::build().
+    bool reload_per_batch = _max_batch != REX::npos;
+    auto proc_rwgts = build_proc_reweightors(
+        _processes, n_iterations, reload_per_batch, _max_deferred_iterations
+    );
     _reweightor =
         std::make_unique<REX::tea::reweightor>(std::move(mother), std::move(proc_rwgts));
     if (!_iterators.empty()) {
@@ -589,6 +1255,11 @@ REX::tea::reweightor& WareHouse::build(REX::lhe&& mother) {
     if (!_launch_names.empty()) {
         _reweightor->set_launch_names(_launch_names);
     }
+    // Muted by default (see _verbose's member initializer); linking here
+    // shares the flag both ways, so verbose().set_verbose(true) unmutes the
+    // reweightor (and, via reweightor::extract_sorter(), every
+    // procReweightor/process batch it runs) after the fact too.
+    _reweightor->verbose.link(_verbose);
     return *_reweightor;
 }
 

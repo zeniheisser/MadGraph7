@@ -1140,7 +1140,8 @@ class MadgraphProcess:
                 matrix_elements.append(None)
                 continue
             api = context.load_matrix_element(
-                meta["me_path"].format(device=backend), self.param_card_path,
+                meta["me_path"].format(device=backend, fptype=self.fptype),
+                self.param_card_path,
                 me_parameters(self.run_card))
             matrix_elements.append(ms.MatrixElement(
                 api,
@@ -1361,13 +1362,13 @@ class MadgraphProcess:
             device_names = [device_names]
         cpu_mode = self.run_card["run"]["cpu_mode"]
         backends = [backend_of(name, cpu_mode) for name in device_names]
+        # FPTYPE is part of the library names ({fptype} in me_path)
+        fptype = self.fptype = fptype_of(self.run_card["run"]["precision"])
         if not self.subprocess_data:
             return backends
 
         first_proc_path = self.subprocess_data[0]["path"]
         subproc_path = os.path.dirname(first_proc_path)
-
-        fptype = fptype_of(self.run_card["run"]["precision"])
 
         # Resolve cpu_mode='auto' once (the build rules pick the best SIMD
         # backend available here), so all subprocesses agree on the library names.
@@ -1388,7 +1389,9 @@ class MadgraphProcess:
         for backend in resolved:
             missing = [
                 meta for meta in self.subprocess_data
-                if not os.path.isfile(meta["me_path"].format(device=backend))
+                if not os.path.isfile(
+                    meta["me_path"].format(device=backend, fptype=fptype)
+                )
             ]
             if not missing:
                 continue
@@ -2598,7 +2601,10 @@ class MadgraphSubprocess:
 
         # The libraries were all built up front by MadgraphProcess.compile_matrix_elements
         all_api_paths = [
-            [api_path_format.format(device=backend) for backend in self.process.backends]
+            [
+                api_path_format.format(device=backend, fptype=self.process.fptype)
+                for backend in self.process.backends
+            ]
             for api_path_format in api_path_formats
         ]
 
@@ -4531,8 +4537,8 @@ def run_single(switch=None, reweight_card: str | None = None) -> "MadgraphProces
                 "helicity information MadtRex needs to match events to the "
                 "matrix element library"
             )
-        from madgraph.iolibs.template_files.mg7.madtrex import run_reweighting
-        run_reweighting(reweight_card, events_path=process.events_path)
+        from madgraph.iolibs.template_files.mg7.madtrex import run_parameter_reweighting
+        run_parameter_reweighting(reweight_card, events_path=process.events_path)
     # run_card-driven LHE post-processing (displaced vertex + systematics)
     run_lhe_postprocessing(process)
     # run the post-processing tools (Pythia8/Delphes/MadSpin/reweight/analysis)

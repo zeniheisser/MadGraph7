@@ -36,7 +36,7 @@ MatrixElementApi::MatrixElementApi(
     std::size_t index,
     const std::unordered_map<std::string, double>& parameters
 ) :
-    _file_name(file), _index(index) {
+    _file_name(file), _index(index), _device(device) {
     _shared_lib = std::unique_ptr<void, std::function<void(void*)>>(
         dlopen(file.c_str(), RTLD_NOW), [file](void* lib) { dlclose(lib); }
     );

@@ -361,17 +361,39 @@ void LHECompleter::find_resonant_propagators(
 
         int color_type = pdg_color_type(propagator_pdg, args.pdg_color_types);
         int sign_flip = 1;
+        // A color flow reconstructed for this decay's children that is
+        // inconsistent with the propagator's own color type used to abort
+        // generation entirely. It is tolerated instead (explicit user request,
+        // 2026-08-28) with a dummy color flow, and the propagator is then never
+        // selected as resonant (see below); callers that only need the event
+        // kinematics in the LHE can live with that.
+        bool color_incompatible = false;
         for (std::size_t i = 0; std::size_t color_index : colors) {
-            prop_colors.at(colors.size() * decay.index + i) = compute_decay_color(
-                decay, i, colors.size(), color_type, prop_colors, sign_flip
-            );
+            auto& prop_color = prop_colors.at(colors.size() * decay.index + i);
+            try {
+                prop_color = compute_decay_color(
+                    decay, i, colors.size(), color_type, prop_colors, sign_flip
+                );
+            } catch (const std::runtime_error&) {
+                color_incompatible = true;
+                prop_color = {0, 0};
+            }
             ++i;
         }
 
         int prop_index = resonant_prop_indices.at(decay.index);
         if (prop_index != -1) {
-            _propagators.at(prop_offset + prop_index).pdg_id =
-                sign_flip * propagator_pdg;
+            auto& propagator = _propagators.at(prop_offset + prop_index);
+            propagator.pdg_id = sign_flip * propagator_pdg;
+            if (color_incompatible) {
+                // Give the propagator an impossible Breit-Wigner window, so
+                // complete_event_data() never writes it as resonant: its mother/
+                // daughter bookkeeping assumes a self-consistent reconstruction.
+                // 1e15 GeV is beyond any invariant mass an event can produce
+                // while staying far from overflow when squared.
+                propagator.mass = 1e15;
+                propagator.width = 0;
+            }
         }
     }
 }
@@ -596,118 +618,127 @@ void LHECompleter::complete_event_data(
     if (find_propagators == _propagator_index_and_count.end()) {
         return;
     }
-    auto [prop_offset, prop_color_offset, prop_count] = find_propagators->second;
-    std::vector<LHEParticle> new_particles;
-    int resonant_prop_mask = 0;
-    for (std::size_t prop_index = 0;
-         auto [propagator, prop_color] :
-         zip(std::span(
-                 _propagators.begin() + prop_offset,
-                 _propagators.begin() + prop_offset + prop_count
-             ),
-             std::span(
-                 _propagator_colors.begin() + prop_color_offset,
-                 _propagator_colors.begin() + prop_color_offset + prop_count
-             ))) {
-        int momentum_mask = propagator.momentum_mask;
-        double e = 0, px = 0, py = 0, pz = 0;
-        for (auto& particle : event.particles) {
-            if (momentum_mask & 1) {
-                e += particle.energy;
-                px += particle.px;
-                py += particle.py;
-                pz += particle.pz;
-            }
-            momentum_mask >>= 1;
-        }
-        double m2 = e * e - px * px - py * py - pz * pz;
-        // Once bw_cutoff exceeds mass/width the window reaches below zero,
-        // where there is no invariant mass left to exclude. Squaring a
-        // negative m_min would instead turn it into a large positive floor and
-        // reject nearly everything, so a wider window would write *fewer*
-        // resonances than a narrow one.
-        double m_min = std::max(0., propagator.mass - _bw_cutoff * propagator.width);
-        double m_max = propagator.mass + _bw_cutoff * propagator.width;
-        if (m2 > m_min * m_min && m2 < m_max * m_max) {
-            auto [color, anti_color] = prop_color;
-            resonant_prop_mask |= 1 << prop_index;
-            new_particles.push_back({
-                .pdg_id = propagator.pdg_id,
-                .status_code = 2,
-                .mother1 = 1,
-                .mother2 = static_cast<int>(n_in),
-                .color = color,
-                .anti_color = anti_color,
-                .px = px,
-                .py = py,
-                .pz = pz,
-                .energy = e,
-                .mass = std::sqrt(m2),
-                .lifetime = 0,
-                .spin = 9,
-            });
-        }
-        ++prop_index;
-    }
-    event.particles.insert(
-        event.particles.begin() + n_in, new_particles.rbegin(), new_particles.rend()
-    );
-    // Where each propagator ended up among the ones this event actually wrote,
-    // which is the order they were just inserted in: outermost first. Only the
-    // propagators inside resonant_prop_mask have a row, and child_prop_mask
-    // names them by prop_index, so the two orders have to be related
-    // explicitly -- counting set mask bits instead lands on the wrong row as
-    // soon as a propagator in between is resonant without being a child.
-    std::vector<int> res_index_of_prop(prop_count, -1);
-    for (std::size_t prop_index = prop_count, next_res_index = 0; prop_index-- > 0;) {
-        if (resonant_prop_mask & (1 << prop_index)) {
-            res_index_of_prop.at(prop_index) = static_cast<int>(next_res_index++);
-        }
-    }
-
-    for (std::size_t prop_index = prop_count, res_index = 0;
-         auto& propagator : std::views::reverse(
-             std::span(
-                 _propagators.begin() + prop_offset,
-                 _propagators.begin() + prop_offset + prop_count
-             )
-         )) {
-        --prop_index;
-        if (resonant_prop_mask & (1 << prop_index)) {
-            // Descend through the propagators this event left off shell: they
-            // have no row of their own, so their children attach here.
-            int pending_prop_mask = propagator.child_prop_mask;
-            while (pending_prop_mask != 0) {
-                int child_prop_index = 0;
-                while ((pending_prop_mask & (1 << child_prop_index)) == 0) {
-                    ++child_prop_index;
-                }
-                pending_prop_mask &= ~(1 << child_prop_index);
-                int child_res_index = res_index_of_prop.at(child_prop_index);
-                if (child_res_index == -1) {
-                    pending_prop_mask |=
-                        _propagators.at(prop_offset + child_prop_index).child_prop_mask;
-                    continue;
-                }
-                auto& child_particle = event.particles.at(child_res_index + n_in);
-                child_particle.mother1 = res_index + n_in + 1;
-                child_particle.mother2 = res_index + n_in + 1;
-            }
-
-            int momentum_mask = propagator.momentum_mask >> n_in;
-            for (auto& particle : std::span(
-                     event.particles.begin() + n_in + new_particles.size(),
-                     event.particles.end()
-                 )) {
+    // If reconstructing the resonance history (mother/daughter entries) fails
+    // for some topology, fall back to the final-state particles set above, with
+    // no intermediate entries for this one event, instead of aborting
+    // generation (explicit user request, 2026-08-28).
+    std::vector<LHEParticle> base_particles = event.particles;
+    try {
+        auto [prop_offset, prop_color_offset, prop_count] = find_propagators->second;
+        std::vector<LHEParticle> new_particles;
+        int resonant_prop_mask = 0;
+        for (std::size_t prop_index = 0;
+             auto [propagator, prop_color] :
+             zip(std::span(
+                     _propagators.begin() + prop_offset,
+                     _propagators.begin() + prop_offset + prop_count
+                 ),
+                 std::span(
+                     _propagator_colors.begin() + prop_color_offset,
+                     _propagator_colors.begin() + prop_color_offset + prop_count
+                 ))) {
+            int momentum_mask = propagator.momentum_mask;
+            double e = 0, px = 0, py = 0, pz = 0;
+            for (auto& particle : event.particles) {
                 if (momentum_mask & 1) {
-                    particle.mother1 = res_index + n_in + 1;
-                    particle.mother2 = res_index + n_in + 1;
+                    e += particle.energy;
+                    px += particle.px;
+                    py += particle.py;
+                    pz += particle.pz;
                 }
                 momentum_mask >>= 1;
             }
-
-            ++res_index;
+            double m2 = e * e - px * px - py * py - pz * pz;
+            // Once bw_cutoff exceeds mass/width the window reaches below zero,
+            // where there is no invariant mass left to exclude. Squaring a
+            // negative m_min would instead turn it into a large positive floor and
+            // reject nearly everything, so a wider window would write *fewer*
+            // resonances than a narrow one.
+            double m_min = std::max(0., propagator.mass - _bw_cutoff * propagator.width);
+            double m_max = propagator.mass + _bw_cutoff * propagator.width;
+            if (m2 > m_min * m_min && m2 < m_max * m_max) {
+                auto [color, anti_color] = prop_color;
+                resonant_prop_mask |= 1 << prop_index;
+                new_particles.push_back({
+                    .pdg_id = propagator.pdg_id,
+                    .status_code = 2,
+                    .mother1 = 1,
+                    .mother2 = static_cast<int>(n_in),
+                    .color = color,
+                    .anti_color = anti_color,
+                    .px = px,
+                    .py = py,
+                    .pz = pz,
+                    .energy = e,
+                    .mass = std::sqrt(m2),
+                    .lifetime = 0,
+                    .spin = 9,
+                });
+            }
+            ++prop_index;
         }
+        event.particles.insert(
+            event.particles.begin() + n_in, new_particles.rbegin(), new_particles.rend()
+        );
+        // Where each propagator ended up among the ones this event actually wrote,
+        // which is the order they were just inserted in: outermost first. Only the
+        // propagators inside resonant_prop_mask have a row, and child_prop_mask
+        // names them by prop_index, so the two orders have to be related
+        // explicitly -- counting set mask bits instead lands on the wrong row as
+        // soon as a propagator in between is resonant without being a child.
+        std::vector<int> res_index_of_prop(prop_count, -1);
+        for (std::size_t prop_index = prop_count, next_res_index = 0; prop_index-- > 0;) {
+            if (resonant_prop_mask & (1 << prop_index)) {
+                res_index_of_prop.at(prop_index) = static_cast<int>(next_res_index++);
+            }
+        }
+
+        for (std::size_t prop_index = prop_count, res_index = 0;
+             auto& propagator : std::views::reverse(
+                 std::span(
+                     _propagators.begin() + prop_offset,
+                     _propagators.begin() + prop_offset + prop_count
+                 )
+             )) {
+            --prop_index;
+            if (resonant_prop_mask & (1 << prop_index)) {
+                // Descend through the propagators this event left off shell: they
+                // have no row of their own, so their children attach here.
+                int pending_prop_mask = propagator.child_prop_mask;
+                while (pending_prop_mask != 0) {
+                    int child_prop_index = 0;
+                    while ((pending_prop_mask & (1 << child_prop_index)) == 0) {
+                        ++child_prop_index;
+                    }
+                    pending_prop_mask &= ~(1 << child_prop_index);
+                    int child_res_index = res_index_of_prop.at(child_prop_index);
+                    if (child_res_index == -1) {
+                        pending_prop_mask |=
+                            _propagators.at(prop_offset + child_prop_index).child_prop_mask;
+                        continue;
+                    }
+                    auto& child_particle = event.particles.at(child_res_index + n_in);
+                    child_particle.mother1 = res_index + n_in + 1;
+                    child_particle.mother2 = res_index + n_in + 1;
+                }
+
+                int momentum_mask = propagator.momentum_mask >> n_in;
+                for (auto& particle : std::span(
+                         event.particles.begin() + n_in + new_particles.size(),
+                         event.particles.end()
+                     )) {
+                    if (momentum_mask & 1) {
+                        particle.mother1 = res_index + n_in + 1;
+                        particle.mother2 = res_index + n_in + 1;
+                    }
+                    momentum_mask >>= 1;
+                }
+
+                ++res_index;
+            }
+        }
+    } catch (const std::exception&) {
+        event.particles = std::move(base_particles);
     }
 }
 

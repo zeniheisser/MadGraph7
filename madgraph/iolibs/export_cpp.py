@@ -415,21 +415,36 @@ class UFOModelConverterCPP(object):
 
         return "\n".join(res_strings)
 
-    def write_register_parameters(self, params, ext_names):
+    def write_register_parameters(self, params, ext_names, complex_map_name='m_complex_params'):
         """Write out the code that registers name->pointer entries for every
         scalar parameter and coupling (independent or dependent), and marks
         which independent parameters were read directly from the SLHA card
         (as opposed to being derived internally). This lookup-by-name table
         backs runtime access to parameters/couplings, e.g. through the UMAMI
         set_parameter/get_parameter interface. FLV_COUPLING entries are
-        skipped: they are not simple scalar values."""
+        skipped: they are not simple scalar values.
+
+        complex_map_name: which C++ map a complex-valued param's pointer
+        gets registered into (default 'm_complex_params'). Model parameters
+        (mdl_*) and derived couplings (GC_*) are *not* interchangeable
+        here in the mg7/madmatrix backend: couplings are declared cxtype
+        (which the caller may have templated to a non-double precision --
+        see model_handling.py's own 'cxsmpl<double>' -> 'cxtype' rewrite
+        for independent couplings specifically), while parameters always
+        stay plain cxsmpl<double> for numerical accuracy (matching
+        m_real_params' own always-double real-parameter pointers) -- so a
+        caller registering both groups needs two separate calls, one per
+        map, each with its own C++ declaration of matching pointer type;
+        passing both groups into a single call/map only compiles by
+        accident whenever cxtype happens to resolve to cxsmpl<double> too
+        (FPTYPE=m/d), and fails to compile at FPTYPE=f."""
 
         lines = []
         for param in params:
             if not hasattr(param, 'type'):
                 continue
             map_name = 'm_real_params' if param.type == 'real' \
-                       else 'm_complex_params'
+                       else complex_map_name
             lines.append('%s["%s"] = &%s;' % (map_name, param.name, param.name))
         for name in ext_names:
             lines.append('m_settable_params.insert("%s");' % name)
@@ -3364,6 +3379,13 @@ class ProcessExporterMG7(ProcessExporterCPP):
         # Create the directory PN_xx_xxxxx in the specified path
         proc_dir_name = process_exporter_mg7.name
         dirpath = pjoin(self.dir_path, 'SubProcesses', proc_dir_name)
+        # self.model/self.model_name aren't reliably set on this class by the
+        # time subprocess directories are generated (see eg
+        # write_check_sa_cpp()'s own "self.model may not be set yet" fallback
+        # above); the matrix element's own model is always available though,
+        # and is what %(model)s in template_Sub_make/template_src_make is
+        # substituted from too (via copy_template()'s model parameter).
+        model = matrix_element.get('processes')[0].get('model')
 
         try:
             os.mkdir(dirpath)
@@ -3380,7 +3402,6 @@ class ProcessExporterMG7(ProcessExporterCPP):
         # Generate SVG Feynman diagrams (diagrams.svg + diagrams.json)
         if not self.opt.get('output_options', {}).get('noeps') == 'True':
             svg_stem = pjoin(dirpath, 'diagrams')
-            model = matrix_element.get('processes')[0].get('model')
             diagrams = matrix_element.get('base_amplitude').get('diagrams')
             logger.info('Generating Feynman diagrams for %s' %
                         matrix_element.get('processes')[0].nice_string())
@@ -3388,7 +3409,14 @@ class ProcessExporterMG7(ProcessExporterCPP):
                                                   model=model, amplitude=True)
             plot.draw()
 
-        me_lib_path = self.me_lib_format.format(process_id = proc_dir_name)
+        # me_lib_format may (eg madmatrix/output.py's ProcessExporterMadMatrix)
+        # carry a {model} placeholder alongside {process_id}, resolved here to
+        # the same sanitized model name template_Sub_make's %(model)s uses;
+        # harmless (str.format ignores unused kwargs) for exporters whose
+        # me_lib_format has no {model} placeholder at all.
+        me_lib_path = self.me_lib_format.format(
+            process_id=proc_dir_name, model=self.get_model_name(model.get('name'))
+        )
         # Store the path relative to the process directory (like me_path): an
         # absolute path would break as soon as the process directory is moved.
         rel_dirpath = pjoin('SubProcesses', proc_dir_name)

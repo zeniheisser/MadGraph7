@@ -30,11 +30,13 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-# rex provides the REX::tea Python types (rex.tea.ProcReweightor/Reweightor/
-# EventBelongs, ...) that madspace.madtrex.TupperWare/WareHouse build and
-# consume. Not on a package index yet -- install from the sibling Rex/ repo
-# (eg `pip install ../Rex`) before installing madspace.
-dependencies = ["rex"]
+# pyrex provides the REX::tea Python types (pyrex.tea.ProcReweightor/
+# Reweightor/EventBelongs, ...) that madspace.madtrex.TupperWare/WareHouse
+# build and consume. Named "pyrex" (not "rex") because "rex" is already an
+# established, unrelated package on the index -- install this project's own
+# Rex/ from the sibling repo (eg `pip install ../Rex`) before installing
+# madspace.
+dependencies = ["pyrex"]
 
 [project.optional-dependencies]
 test = [

@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "madtrex/madtrex.hpp"
+#include "madtrex/pdfware.hpp"
 
 namespace py = pybind11;
 using namespace madtrex;
@@ -17,19 +18,21 @@ void bind_madtrex(py::module_ m) {
 
     // TupperWare/WareHouse build REX::tea::procReweightor/reweightor objects and
     // consume REX::eventBelongs/event_bool_fn event checkers -- all types already
-    // bound by the separately-built `rex` package (rex / rex.tea). Import them
-    // first so those types are registered in the process before any madtrex
-    // binding below references them, and do NOT re-register py::classh<...> for
-    // any of them here: pybind11 raises "generic_type: type ... is already
-    // registered!" the moment both `rex` and `madspace` are imported into the
-    // same process and both sides independently declare a class binding for the
-    // same C++ type. Cross-module reuse (verified empirically: an independently
+    // bound by the separately-built `pyrex` package (pyrex / pyrex.tea; named
+    // "pyrex" rather than "rex" because "rex" is already an established,
+    // unrelated package on the index). Import them first so those types are
+    // registered in the process before any madtrex binding below references
+    // them, and do NOT re-register py::classh<...> for any of them here:
+    // pybind11 raises "generic_type: type ... is already registered!" the
+    // moment both `pyrex` and `madspace` are imported into the same process
+    // and both sides independently declare a class binding for the same C++
+    // type. Cross-module reuse (verified empirically: an independently
     // compiled procReweightor, returned from a second, unrelated extension
-    // module, casts cleanly to the already-registered rex.tea.ProcReweightor
+    // module, casts cleanly to the already-registered pyrex.tea.ProcReweightor
     // Python type) is what makes objects built here actually usable with
-    // rex.tea.Reweightor.run() etc.
-    py::module_::import("rex");
-    py::module_::import("rex.tea");
+    // pyrex.tea.Reweightor.run() etc.
+    py::module_::import("pyrex");
+    py::module_::import("pyrex.tea");
 
     // ---- UmamiInputKey / UmamiOutputKey ----
     // Plain C enums from madspace/umami.h; not bound anywhere else in
@@ -63,8 +66,32 @@ void bind_madtrex(py::module_ m) {
     // (procReweightor's Python constructors only take Python-callable
     // std::functions, not a pre-built weightor handle). TupperWare/WareHouse's
     // add_api()/build() cover the actual construction path end to end.
-    m.def("default_input_keys", &default_input_keys, py::arg("api"));
+    m.def(
+        "default_input_keys",
+        &default_input_keys,
+        py::arg("api"),
+        py::arg("use_helicity") = false
+    );
     m.def("default_output_keys", &default_output_keys, py::arg("api"));
+
+    // ---- ReloadSpec ----
+    // Plain data: how TupperWare::add_api()/set_normaliser() can reload an
+    // independent MatrixElementApi instance per WareHouse.set_max_batch()
+    // overflow batch instead of every batch sharing the one instance it was
+    // registered with -- see WareHouse.set_max_batch() below. Driver builds
+    // and attaches one of these automatically for every api it loads, so
+    // Python code driving reweighting through Driver never needs to touch
+    // this directly; it's exposed for TupperWare/WareHouse used standalone.
+    py::classh<ReloadSpec>(m, "ReloadSpec")
+        .def(
+            py::init<madspace::ContextPtr, std::string, std::string>(),
+            py::arg("context"),
+            py::arg("me_path"),
+            py::arg("param_card")
+        )
+        .def_readwrite("context", &ReloadSpec::context)
+        .def_readwrite("me_path", &ReloadSpec::me_path)
+        .def_readwrite("param_card", &ReloadSpec::param_card);
 
     // ---- TupperWare ----
     // set_event_checker is bound only in its shared_ptr<eventBelongs> form, not
@@ -101,6 +128,24 @@ void bind_madtrex(py::module_ m) {
             py::arg("api"),
             py::arg("input_keys"),
             py::arg("output_keys")
+        )
+        .def(
+            "add_api",
+            py::overload_cast<const MatrixElementApi&, ReloadSpec>(&TupperWare::add_api),
+            py::arg("api"),
+            py::arg("reload")
+        )
+        .def(
+            "add_api",
+            py::overload_cast<
+                const MatrixElementApi&,
+                std::vector<UmamiInputKey>,
+                std::vector<UmamiOutputKey>,
+                ReloadSpec>(&TupperWare::add_api),
+            py::arg("api"),
+            py::arg("input_keys"),
+            py::arg("output_keys"),
+            py::arg("reload")
         )
         .def(
             "add_api",
@@ -167,7 +212,26 @@ void bind_madtrex(py::module_ m) {
             py::arg("input_keys"),
             py::arg("output_keys")
         )
+        .def(
+            "set_normaliser",
+            py::overload_cast<const MatrixElementApi&, ReloadSpec>(&TupperWare::set_normaliser),
+            py::arg("api"),
+            py::arg("reload")
+        )
+        .def(
+            "set_normaliser",
+            py::overload_cast<
+                const MatrixElementApi&,
+                std::vector<UmamiInputKey>,
+                std::vector<UmamiOutputKey>,
+                ReloadSpec>(&TupperWare::set_normaliser),
+            py::arg("api"),
+            py::arg("input_keys"),
+            py::arg("output_keys"),
+            py::arg("reload")
+        )
         .def("set_result_keys", &TupperWare::set_result_keys, py::arg("keys"))
+        .def("set_use_helicity", &TupperWare::set_use_helicity, py::arg("use_helicity"))
         .def(
             "set_event_checker",
             py::overload_cast<std::shared_ptr<REX::eventBelongs>>(
@@ -180,7 +244,13 @@ void bind_madtrex(py::module_ m) {
             py::overload_cast<REX::event_bool_fn>(&TupperWare::set_event_checker),
             py::arg("checker")
         )
-        .def("build", &TupperWare::build);
+        .def(
+            "build",
+            &TupperWare::build,
+            py::arg("n_iterations") = 1,
+            py::arg("reload_per_batch") = false,
+            py::arg("max_deferred_iterations") = REX::npos
+        );
 
     // ---- WareHouse ----
     // Move-only (copy ctor/assignment deleted in C++, mirroring
@@ -221,6 +291,17 @@ void bind_madtrex(py::module_ m) {
         .def("set_finalise", &WareHouse::set_finalise, py::arg("fin"))
         .def("set_launch_names", &WareHouse::set_launch_names, py::arg("names"))
         .def("add_launch_name", &WareHouse::add_launch_name, py::arg("name"))
+        .def("launch_names", &WareHouse::launch_names)
+        .def("set_max_batch", &WareHouse::set_max_batch, py::arg("max_batch"))
+        .def("max_batch", &WareHouse::max_batch)
+        .def(
+            "set_max_deferred_iterations",
+            &WareHouse::set_max_deferred_iterations,
+            py::arg("max_deferred_iterations")
+        )
+        .def("max_deferred_iterations", &WareHouse::max_deferred_iterations)
+        .def("set_verbose", &WareHouse::set_verbose, py::arg("v"))
+        .def("is_verbose", &WareHouse::is_verbose)
         .def(
             "build",
             py::overload_cast<const REX::lhe&>(&WareHouse::build),
@@ -260,6 +341,37 @@ void bind_madtrex(py::module_ m) {
     );
     m.def(
         "save_weights_binary", &save_weights_binary, py::arg("lhe"), py::arg("path_prefix")
+    );
+
+    // ---- Splitting a job across independent shards, and recombining them ----
+    // The generic REX::split_source() itself is intentionally not bound
+    // (would need REX::eventSource/eventSink exposed to Python too, which
+    // pyrex doesn't currently do); split_events()/combine_shards() are the
+    // two madtrex-level entry points that actually matter for driving this
+    // workflow from Python -- see madtrex.hpp for the full picture.
+    py::classh<SplitResult>(m, "SplitResult")
+        .def_readonly("paths", &SplitResult::paths)
+        .def_readonly("counts", &SplitResult::counts);
+
+    m.def(
+        "split_events",
+        &split_events,
+        py::arg("path"),
+        py::arg("output_prefix"),
+        py::arg("n_shards"),
+        py::arg("particle_count") = 0,
+        py::arg("batch_size") = 10000,
+        py::arg("meta") = LHEMeta{}
+    );
+    m.def(
+        "combine_shards",
+        &combine_shards,
+        py::arg("shard_event_paths"),
+        py::arg("shard_weight_prefixes"),
+        py::arg("launch_names"),
+        py::arg("output_path"),
+        py::arg("binary_output") = false,
+        py::arg("meta") = LHEMeta{}
     );
 
     // ---- SubProcessSpec / FlavorChannel ----
@@ -339,6 +451,57 @@ void bind_madtrex(py::module_ m) {
         )
         .def("device_priority", &Driver::device_priority)
         .def(
+            "set_fptype_priority",
+            &Driver::set_fptype_priority,
+            py::arg("priority"),
+            py::return_value_policy::reference_internal
+        )
+        .def("fptype_priority", &Driver::fptype_priority)
+        .def(
+            "set_normaliser_fptype_priority",
+            &Driver::set_normaliser_fptype_priority,
+            py::arg("priority"),
+            py::return_value_policy::reference_internal
+        )
+        .def("normaliser_fptype_priority", &Driver::normaliser_fptype_priority)
+        .def(
+            "set_use_helicity",
+            &Driver::set_use_helicity,
+            py::arg("use_helicity"),
+            py::return_value_policy::reference_internal
+        )
+        .def("use_helicity", &Driver::use_helicity)
+        .def(
+            "set_verbose",
+            &Driver::set_verbose,
+            py::arg("v"),
+            py::return_value_policy::reference_internal
+        )
+        .def("is_verbose", &Driver::is_verbose)
+        .def(
+            "set_max_batch",
+            &Driver::set_max_batch,
+            py::arg("max_batch"),
+            py::return_value_policy::reference_internal
+        )
+        .def("max_batch", &Driver::max_batch)
+        .def(
+            "set_max_deferred_iterations",
+            &Driver::set_max_deferred_iterations,
+            py::arg("max_deferred_iterations"),
+            py::return_value_policy::reference_internal
+        )
+        .def("max_deferred_iterations", &Driver::max_deferred_iterations)
+        .def(
+            "set_streaming",
+            &Driver::set_streaming,
+            py::arg("enable"),
+            py::arg("batch_size") = 10000,
+            py::return_value_policy::reference_internal
+        )
+        .def("streaming", &Driver::streaming)
+        .def("stream_batch_size", &Driver::stream_batch_size)
+        .def(
             "load_process",
             &Driver::load_process,
             py::arg("subprocesses_json_path"),
@@ -384,6 +547,13 @@ void bind_madtrex(py::module_ m) {
             py::return_value_policy::reference_internal
         )
         .def(
+            "run_streaming",
+            &Driver::run_streaming,
+            py::arg("output_path"),
+            py::arg("include_ids") = false,
+            py::return_value_policy::reference_internal
+        )
+        .def(
             "reweight",
             &Driver::reweight,
             py::arg("process_directory"),
@@ -401,4 +571,196 @@ void bind_madtrex(py::module_ m) {
             py::return_value_policy::reference_internal
         )
         .def("specs", &Driver::specs);
+
+    // ---- ScaleChoice ----
+    // Either an absolute scale (GeV) or a multiplicative factor of an
+    // event's own recorded muF/muR -- see its own doc comment in
+    // pdfware.hpp. A plain Python float passed where a ScaleChoice is
+    // expected (set_baseline()/add_hypothesis()/add_scale_variation_envelope()
+    // below) is implicitly treated as ScaleChoice.factor(...), matching the
+    // C++ side's own non-explicit single-double constructor -- the
+    // pre-existing, default behaviour.
+    py::classh<ScaleChoice> scale_choice(m, "ScaleChoice");
+    scale_choice
+        .def(py::init<>())
+        .def(py::init<double>(), py::arg("value"))
+        .def(py::init<double, bool>(), py::arg("value"), py::arg("absolute"))
+        .def_readwrite("value", &ScaleChoice::value)
+        .def_readwrite("absolute", &ScaleChoice::absolute)
+        .def_static("factor", &ScaleChoice::factor, py::arg("value"))
+        .def_static("fixed", &ScaleChoice::fixed, py::arg("value"))
+        .def("scaled_by", &ScaleChoice::scaled_by, py::arg("extra_factor"))
+        .def("resolve", &ScaleChoice::resolve, py::arg("nominal"));
+    py::implicitly_convertible<double, ScaleChoice>();
+    py::implicitly_convertible<int, ScaleChoice>();
+
+    // ---- ScaleVariationOutput ----
+    py::enum_<ScaleVariationOutput>(m, "ScaleVariationOutput")
+        .value("NONE", ScaleVariationOutput::none)
+        .value("ENVELOPE", ScaleVariationOutput::envelope)
+        .value("ALL", ScaleVariationOutput::all);
+
+    // ---- PdfDriver ----
+    // PdfDriver builds/runs a single REX::tea::reweightor doing PDF-only (not
+    // matrix-element) reweighting -- see pdfware.hpp. PdfSet/PdfHypothesis/
+    // make_pdf_weightor are internal building blocks (same "not bound" reasoning
+    // as make_weightor above -- load_pdf_set()/set_baseline()/add_hypothesis()
+    // cover construction end to end from Python) and aren't exposed here.
+    // PdfDriver isn't copy-constructible either (it owns a
+    // unique_ptr<REX::tea::reweightor>), so every PdfDriver&-returning method
+    // uses reference_internal, same as Driver above.
+    py::classh<PdfDriver>(m, "PdfDriver")
+        .def(py::init<>())
+        .def(py::init<madspace::ContextPtr>(), py::arg("context"))
+        .def(
+            "load_pdf_set",
+            &PdfDriver::load_pdf_set,
+            py::arg("name"),
+            py::arg("grid_file"),
+            py::arg("alpha_s_grid_file") = "",
+            py::arg("pids") = PdfDriver::default_pids(),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_pdf_set",
+            &PdfDriver::add_pdf_set,
+            py::arg("name"),
+            py::arg("grid"),
+            py::arg("alpha_s_grid") = nullptr,
+            py::arg("pids") = PdfDriver::default_pids(),
+            py::arg("existing_globals_prefix") = "",
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "set_alpha_s_power",
+            &PdfDriver::set_alpha_s_power,
+            py::arg("power"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "set_baseline",
+            py::overload_cast<const std::string&, ScaleChoice, ScaleChoice>(
+                &PdfDriver::set_baseline),
+            py::arg("pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "set_baseline",
+            py::overload_cast<const std::string&, const std::string&, ScaleChoice, ScaleChoice>(
+                &PdfDriver::set_baseline),
+            py::arg("beam1_pdf_set_name"),
+            py::arg("beam2_pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_hypothesis",
+            py::overload_cast<const std::string&, const std::string&, ScaleChoice, ScaleChoice>(
+                &PdfDriver::add_hypothesis),
+            py::arg("launch_name"),
+            py::arg("pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_hypothesis",
+            py::overload_cast<
+                const std::string&, const std::string&, const std::string&, ScaleChoice,
+                ScaleChoice>(&PdfDriver::add_hypothesis),
+            py::arg("launch_name"),
+            py::arg("beam1_pdf_set_name"),
+            py::arg("beam2_pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_scale_variation_envelope",
+            py::overload_cast<const std::string&, const std::string&, ScaleChoice, ScaleChoice>(
+                &PdfDriver::add_scale_variation_envelope),
+            py::arg("group_name"),
+            py::arg("pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "add_scale_variation_envelope",
+            py::overload_cast<
+                const std::string&, const std::string&, const std::string&, ScaleChoice,
+                ScaleChoice>(&PdfDriver::add_scale_variation_envelope),
+            py::arg("group_name"),
+            py::arg("beam1_pdf_set_name"),
+            py::arg("beam2_pdf_set_name"),
+            py::arg("muF_scale") = ScaleChoice::factor(1.0),
+            py::arg("muR_scale") = ScaleChoice::factor(1.0),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "set_scale_variation_output",
+            &PdfDriver::set_scale_variation_output,
+            py::arg("mode"),
+            py::return_value_policy::reference_internal
+        )
+        .def("scale_variation_output", &PdfDriver::scale_variation_output)
+        .def(
+            "set_verbose",
+            &PdfDriver::set_verbose,
+            py::arg("v"),
+            py::return_value_policy::reference_internal
+        )
+        .def("is_verbose", &PdfDriver::is_verbose)
+        .def(
+            "set_beam_energies",
+            &PdfDriver::set_beam_energies,
+            py::arg("beam1_energy"),
+            py::arg("beam2_energy"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "load_events",
+            &PdfDriver::load_events,
+            py::arg("path"),
+            py::arg("meta") = LHEMeta{},
+            py::return_value_policy::reference_internal
+        )
+        .def("binary_output", &PdfDriver::binary_output)
+        .def(
+            "set_binary_output",
+            &PdfDriver::set_binary_output,
+            py::arg("binary"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "write_weights",
+            &PdfDriver::write_weights,
+            py::arg("path"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "keep_weights",
+            &PdfDriver::keep_weights,
+            py::arg("keep_names"),
+            py::return_value_policy::reference_internal
+        )
+        .def(
+            "reweight",
+            &PdfDriver::reweight,
+            py::arg("events_path"),
+            py::arg("output_path"),
+            py::arg("meta") = LHEMeta{},
+            py::return_value_policy::reference_internal
+        )
+        .def("context", &PdfDriver::context)
+        .def(
+            "get",
+            py::overload_cast<>(&PdfDriver::get),
+            py::return_value_policy::reference_internal
+        )
+        .def("built", &PdfDriver::built)
+        .def_static("default_pids", &PdfDriver::default_pids);
 }

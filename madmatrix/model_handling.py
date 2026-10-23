@@ -1599,11 +1599,22 @@ class MadMatrixUFOModelConverter(export_cpp.UFOModelConverterGPU):
         # every event batch by computeDependentCouplings(), bypassing the Parameters
         # singleton entirely. Only independent parameters/couplings (and never 'aS',
         # whose declaration is likewise commented out) can be registered here.
+        # Two separate calls/maps, not one combined list into one map: model
+        # parameters (mdl_*) always stay plain cxsmpl<double> (registered
+        # into m_complex_model_params below), while independent couplings
+        # (GC_*) are cxtype -- FPTYPE-templated, so possibly cxsmpl<float>
+        # -- and go into m_complex_params instead. A single combined
+        # registration into one map only compiled by accident at FPTYPE=m/d
+        # (where cxtype happens to also be cxsmpl<double>) and failed to
+        # compile at FPTYPE=f -- see write_register_parameters()'s own doc
+        # comment.
         replace_dict['register_parameters'] = \
                                self.write_register_parameters(
-                                   [p for p in self.params_indep if p.name != 'aS'] + \
-                                   self.coups_indep,
-                                   [n for n in self.params_ext_names if n != 'aS'])
+                                   [p for p in self.params_indep if p.name != 'aS'],
+                                   [n for n in self.params_ext_names if n != 'aS'],
+                                   complex_map_name='m_complex_model_params') + \
+                               '\n' + \
+                               self.write_register_parameters(self.coups_indep, [])
         replace_dict['register_slha_keys'] = \
                                self.write_register_slha_keys(
                                    [e for e in self.params_ext_slha if e[0] != 'aS'])

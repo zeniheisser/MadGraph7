@@ -177,6 +177,13 @@ public:
     /// Opaque per-thread UMAMI process handle, initialized on first use.
     void* process_instance() const { return _instances.get().get(); }
 
+    // The Device this api's library was loaded on (ie the owning Context's
+    // device). Callers driving umami_matrix_element() need this to know
+    // whether the inputs/outputs it exchanges have to be staged through
+    // device-resident buffers (cuda/hip) or can be passed as plain host
+    // pointers (cpu).
+    DevicePtr device() const noexcept { return _device; }
+
     // Whether the loaded library actually implements umami_set_parameter/
     // umami_get_parameter (both optional symbols; a library built without
     // them still loads fine, it just can't be parameter-reweighted in place
@@ -185,17 +192,8 @@ public:
     bool supports_set_parameter() const noexcept { return bool(_functions.set_parameter); }
     bool supports_get_parameter() const noexcept { return bool(_functions.get_parameter); }
 
-    // Directly sets/reads an independent, SLHA-card-level model parameter on
-    // this api's process_instance() -- see umami_set_parameter/
-    // umami_get_parameter in umami.h for the accepted forms of name (model
-    // name, eg "mdl_MT", or SLHA location, eg "mass 6"). Unlike rewriting the
-    // param card and reloading the library, this mutates the already-loaded
-    // instance in place, so callers evaluating the matrix element
-    // concurrently on the same instance must synchronize against that (see
-    // madtrex::detail::api_call_mutex, used by both
-    // madtrex::TupperWare-derived weightors and madtrex::ParamHandler for
-    // exactly this reason). Throws on UMAMI_ERROR_UNKNOWN_PARAMETER (name is
-    // not a settable/known parameter) or if the symbol isn't implemented.
+    // Directly sets/reads physics parameters according to whatever
+    // convention the library has implemented.
     void set_parameter(const std::string& name, double real, double imag = 0.0) const;
     std::pair<double, double> get_parameter(const std::string& name) const;
 
@@ -233,6 +231,7 @@ private:
     ThreadResource<InstanceType> _instances;
     std::string _file_name;
     std::size_t _index;
+    DevicePtr _device;
 
     friend class Context;
 };

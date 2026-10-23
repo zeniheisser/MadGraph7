@@ -109,11 +109,27 @@ Parameters::getParameterByName( std::string name, double* real, double* imag )
     if( imag ) *imag = 0.;
     return true;
   }
-  std::map<std::string, cxsmpl<double>*>::iterator complex_it = m_complex_params.find( name );
+  // cxtype (not hardcoded cxsmpl<double>): must match m_complex_params'
+  // own value_type (see its declaration's own comment) -- real()/imag()
+  // below still convert safely into *real/*imag (always plain double*
+  // here) whatever cxtype's own underlying precision is.
+  std::map<std::string, cxtype*>::iterator complex_it = m_complex_params.find( name );
   if( complex_it != m_complex_params.end() )
   {
     *real = complex_it->second->real();
     if( imag ) *imag = complex_it->second->imag();
+    return true;
+  }
+  // Independent model parameters (as opposed to derived couplings just
+  // above) -- see m_complex_model_params' own declaration comment for why
+  // this is a second, separate map/type rather than sharing
+  // m_complex_params.
+  std::map<std::string, cxsmpl<double>*>::iterator complex_model_it =
+      m_complex_model_params.find( name );
+  if( complex_model_it != m_complex_model_params.end() )
+  {
+    *real = complex_model_it->second->real();
+    if( imag ) *imag = complex_model_it->second->imag();
     return true;
   }
   return false;

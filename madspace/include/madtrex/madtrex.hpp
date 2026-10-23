@@ -61,6 +61,101 @@ using namespace madspace;
     std::shared_ptr<REX::lhe> load_lhe(const std::string& path);
 
     // ---------------------------------------------------------------------
+    // Splitting a job across independent shards, and recombining them
+    // ---------------------------------------------------------------------
+    //
+    // Large reweighting jobs can be split into n_shards independent pieces
+    // (eg to run one per cluster node) via split_events(), each piece
+    // reweighted completely independently (via the ordinary Driver API,
+    // pointed at that one shard -- no new API needed for that half), and
+    // the n_shards results stitched back together via combine_shards(),
+    // which is also where -- and the *only* place where -- the combined
+    // sample's cross section and error actually get computed.
+
+    // The result of split_events(): one binary EventFile path per shard
+    // (empty if that shard ended up with zero events, eg n_shards exceeded
+    // the source's event count -- no file is created for it), and the
+    // event count actually written to each, both in shard order.
+    struct SplitResult {
+        std::vector<std::string> paths;
+        std::vector<std::size_t> counts;
+    };
+
+    // Splits the event source at path (auto-detected XML or MadGraph7's
+    // internal binary EventFile via detect_lhe_format()) into n_shards
+    // separate binary EventFile shards on disk, named
+    // "<output_prefix>_shard<i>.npy" for i in [0, n_shards) -- always
+    // binary for the shards regardless of path's own format, via
+    // REX::split_source() + open_lhe_sink_binary(), so each one is
+    // independently a load_events()-ready input for its own, completely
+    // separate Driver/job (eg one per cluster node) reweighting only that
+    // shard. path is streamed directly either way (REX::open_lhe_source()
+    // for XML, open_lhe_source_binary() for binary; meta is only consulted
+    // for the latter, matching load_events()), so memory use stays
+    // O(batch_size) regardless of path's total size. particle_count bounds
+    // every shard's fixed per-event particle-slot count (see
+    // open_lhe_sink_binary()); left at 0, each shard determines its own
+    // from whichever event lands there first.
+    //
+    // This only ever splits *input* events, never weights: recombining
+    // per-shard reweighting results (and computing the combined sample's
+    // cross section/error exactly once, over the totality) is
+    // combine_shards()'s job.
+    SplitResult split_events(
+        const std::string& path,
+        const std::string& output_prefix,
+        std::size_t n_shards,
+        std::size_t particle_count = 0,
+        std::size_t batch_size = 10000,
+        const madspace::LHEMeta& meta = {}
+    );
+
+    // Recombines n_shards shards previously produced by split_events(),
+    // each independently reweighted (eg via a Driver::reweight()/
+    // write_weights() call per shard, with binary_output() left true --
+    // the natural, and only currently supported, output for a per-shard
+    // job in this workflow), back into a single result: for shard i, loads
+    // its original events from shard_event_paths[i] (via
+    // load_lhe_binary()) and its reweighted columns from
+    // "<shard_weight_prefixes[i]>_<weight_id>.npy" per entry of
+    // launch_names, in order (via load_weights_binary()), reattaches them
+    // as that shard's events' wgts_, then appends all n_shards shards'
+    // events, in order, into one combined REX::tea::reweightor.
+    //
+    // Cross sections and errors (reweightor::calc_xSecs()/calc_xErrs())
+    // are computed exactly once here, over the full recombined sample --
+    // this is the *only* place in the split/reweight/recombine workflow
+    // that does so. A per-shard job must never compute (or, worse, write
+    // out) its own cross-section/error estimate over just its own
+    // fraction of the events: unlike a per-event weight, cross section
+    // and (especially) its error do not additively decompose across an
+    // arbitrary partition of the sample, so combining separately-computed
+    // per-shard estimates afterward would silently be statistically
+    // wrong. Using save_weights_binary() as every shard's own output
+    // format (as this workflow requires) already sidesteps the temptation
+    // structurally -- it never writes xSec_/xSecErr_/rwgt_xSec/rwgt_xErr
+    // at all, only raw per-event weight columns.
+    //
+    // Writes the combined result to output_path as LHEF XML
+    // (REX::write_lhef) unless binary_output is true, in which case
+    // save_weights_binary() is used instead, the same convention
+    // Driver::write_weights() follows. meta supplies init-block
+    // information the same way it does for load_events()/load_lhe_binary()
+    // (the binary format itself carries none); consulted once, for
+    // shard_event_paths[0], not per shard. Returns the combined reweightor
+    // (already finalised: calc_xSecs()/calc_xErrs() already run) for
+    // callers that want to inspect rwgt_xSec/rwgt_xErr/norm_factor
+    // themselves afterward.
+    REX::tea::reweightor combine_shards(
+        const std::vector<std::string>& shard_event_paths,
+        const std::vector<std::string>& shard_weight_prefixes,
+        const std::vector<std::string>& launch_names,
+        const std::string& output_path,
+        bool binary_output = false,
+        const madspace::LHEMeta& meta = {}
+    );
+
+    // ---------------------------------------------------------------------
     // MadMatrix/UMAMI subprocess JSON loading
     // ---------------------------------------------------------------------
     //
@@ -134,18 +229,28 @@ using namespace madspace;
     // sentinel), meaning the matrix element should sum over helicities.
     REX::eventBelongs make_event_checker(const SubProcessSpec& spec);
 
-    // Given PROCESS_DIRECTORY and a me_path template containing a literal
-    // "{device}" placeholder, lists whichever concrete files actually exist on
-    // disk (eg "libmadmatrix_P1_gg_ttx_cppnone.so") and resolves which one to
-    // use via device_priority: the first priority entry with a matching file
-    // wins; if none of the priority entries match but exactly one file was
-    // found, that one is used regardless; otherwise (no match, or several
-    // found and no priority set) throws, listing what was found, so the caller
-    // can call MadtRex::set_device_priority(...) and try again.
+    // Given PROCESS_DIRECTORY and a me_path template containing literal
+    // "{device}" and/or "{fptype}" placeholders (see me_lib_format in
+    // MadMatrix's own madmatrix/output.py, and MADMATRIX_LIB in
+    // madmatrix.mk), lists whichever concrete files actually exist on disk
+    // (eg "libmadmatrix_sm_P1_gg_ttx_cppnone_m.so") and resolves which one
+    // to use via device_priority/fptype_priority: device is resolved
+    // first -- the first device_priority entry with a matching file wins;
+    // if none match but exactly one device variant was found (for any
+    // fptype), that one is used regardless -- then, among files matching
+    // the chosen device, fptype is resolved the same way via
+    // fptype_priority. A template with only one of the two placeholders
+    // (or neither, eg an already-fully-resolved path) resolves that one
+    // placeholder alone, or is returned as-is if it exists. Throws (no
+    // match at any stage, or several found and no priority set) listing
+    // what was found, so the caller can call
+    // Driver::set_device_priority(...)/set_fptype_priority(...) and try
+    // again.
     std::string resolve_me_path(
         const std::string& process_directory,
         const std::string& me_path_template,
-        const std::vector<std::string>& device_priority
+        const std::vector<std::string>& device_priority,
+        const std::vector<std::string>& fptype_priority = {}
     );
 
     // Driver is the top-level driver tying together JSON-described MadMatrix
@@ -170,6 +275,125 @@ using namespace madspace;
         // throw on ambiguity.
         Driver& set_device_priority(std::vector<std::string> priority);
         const std::vector<std::string>& device_priority() const;
+
+        // As device_priority(), but disambiguates multiple {fptype}-suffixed
+        // library variants found for the same subprocess (see MADMATRIX_LIB
+        // in madmatrix.mk, SUPPORTED_FPTYPES therein for the full set of
+        // legal values: "d", "f", "m"), among whichever ones exist for the
+        // already-resolved device (see resolve_me_path()). Defaults to
+        // {"m", "d", "f"}, matching madmatrix.mk's own FPTYPE=m default; an
+        // explicitly empty priority means: auto-use a lone match, throw on
+        // ambiguity.
+        Driver& set_fptype_priority(std::vector<std::string> priority);
+        const std::vector<std::string>& fptype_priority() const;
+
+        // Priority order used to resolve which {fptype}-suffixed library
+        // variant load_process()/load_process_directory() loads for each
+        // subprocess's *normaliser* (REX::tea::procReweightor's own
+        // normalisation weightor -- see TupperWare::set_normaliser()), kept
+        // deliberately independent of fptype_priority() (used for the
+        // reweight-*target* api instead). This is a fundamental assumption
+        // of how reweighting works here: every launch must be normalised
+        // against the sample's actual, original configuration -- never
+        // against whatever it's being reweighted TO -- exactly as ordinary
+        // physics-parameter reweighting already does (normaliser = the
+        // as-loaded param_card, untouched by any launch's "set BLOCK ID
+        // VALUE" override, which only ever gets applied to the reweight-
+        // target api via ParamHandler). A change of *fptype* additionally
+        // needs a differently-*compiled* library for that role, which is
+        // exactly what this priority controls.
+        //
+        // Left unset (the default) means: reuse fptype_priority() for the
+        // normaliser too, ie load_process() shares one api between both
+        // roles -- correct and harmless when a card never changes fptype
+        // (the sample's own fptype IS the target fptype in that case), and
+        // preserves this class's pre-existing behavior for every caller
+        // that never calls this setter. Call this explicitly with the
+        // sample's *original* fptype (madtrex.py's run_parameter_
+        // reweighting() reads this from the process directory's own
+        // run_card.toml [run] fptype) whenever fptype_priority() targets a
+        // *different* fptype than the sample was actually generated at --
+        // load_process() then loads a second, independent api for the
+        // normaliser role, deliberately never registered via add_api()
+        // (see its own implementation comment), so ParamHandler's per-
+        // launch parameter overrides can never touch it.
+        Driver& set_normaliser_fptype_priority(std::vector<std::string> priority);
+        const std::vector<std::string>& normaliser_fptype_priority() const;
+
+        // Whether UMAMI_IN_HELICITY_INDEX is used for subprocesses loaded by
+        // load_process()/load_process_directory() from here on (it does not
+        // retroactively affect subprocesses already loaded). Off by default:
+        // fixing an event's helicity_ changes what the matrix element
+        // computes (a single helicity vs summed over all of them), so this
+        // is left for the implementation to opt into explicitly rather than
+        // silently turning on whenever a matrix element happens to support
+        // it. See default_input_keys() and input_keys_for().
+        Driver& set_use_helicity(bool use_helicity);
+        bool use_helicity() const;
+
+        // The muted-by-default warning logger shared with the built
+        // WareHouse/reweightor (see WareHouse::verbose()). Call
+        // verbose().set_verbose(true) to unmute.
+        REX::verbosity& verbose();
+        const REX::verbosity& verbose() const;
+        // Plain-bool convenience for verbose().set_verbose(v)/is_verbose().
+        Driver& set_verbose(bool v);
+        bool is_verbose() const;
+
+        // Maximum number of events per REX::process (see
+        // WareHouse::set_max_batch()/REX::lhe::max_batch), applied by
+        // load_events()/warehouse().build(). Left at REX::npos (unset) by
+        // default. Setting this also makes every subprocess loaded via
+        // load_process()/load_process_directory() reload its own
+        // MatrixElementApi instance per batch instead of every max_batch
+        // overflow clone sharing (and serializing calls through) the one
+        // instance that was loaded for it -- see TupperWare::build() and
+        // ReloadSpec.
+        Driver& set_max_batch(std::size_t max_batch);
+        std::size_t max_batch() const;
+
+        // Passed straight through to WareHouse::set_max_deferred_iterations()
+        // (see its own doc comment): caps how many outer reweighting
+        // iterations' worth of deferred (eg GPU) results are allowed to
+        // accumulate device-side, per process, before an automatic mid-run
+        // flush back to the host. REX::npos (the default) means no cap --
+        // deferred results are only ever copied back once, at the end of
+        // the whole run, same as before this existed.
+        Driver& set_max_deferred_iterations(std::size_t max_deferred_iterations);
+        std::size_t max_deferred_iterations() const;
+
+        // Enables Rex's streaming mode for the next load_events() call:
+        // rather than loading the whole event file into memory up front,
+        // load_events() opens a REX::eventSource for path and builds the
+        // WareHouse's reweightor via REX::lhe::open_streaming(), so events
+        // are pulled and processed batch_size at a time. Off by default.
+        // Only supported for LHEF XML event sources (REX::open_lhe_source);
+        // load_events() throws if streaming is enabled and path is detected
+        // as MadGraph7's internal binary EventFile format. Once enabled,
+        // run the reweighting via run_streaming() (or reweight()'s
+        // end-to-end convenience) instead of warehouse().get().run() +
+        // write_weights(): streamed output is written incrementally to a
+        // sink as each batch finishes, not held for a later
+        // write_weights() call.
+        Driver& set_streaming(bool enable, std::size_t batch_size = 10000);
+        bool streaming() const;
+        std::size_t stream_batch_size() const;
+
+        // Runs the streaming reweightor built by load_events() (see
+        // set_streaming()) to completion, writing events incrementally to
+        // output_path as an LHEF XML sink (REX::open_lhe_sink) unless
+        // binary_output() is true (set automatically by load_events() when
+        // it detected a binary source), in which case output_path is
+        // instead used as a path_prefix for one streamed weight-only
+        // binary file per launch name (open_weights_sink_binary()), the
+        // same "<output_path>_<weight_id>.npy" convention
+        // save_weights_binary()/write_weights() use -- this requires
+        // warehouse().launch_names() to be non-empty (eg via
+        // load_param_reweighting() or warehouse().set_launch_names()),
+        // since binary weight files are named per weight id; throws
+        // otherwise. Throws if streaming() is false, or the WareHouse
+        // hasn't been built yet.
+        Driver& run_streaming(const std::string& output_path, bool include_ids = false);
 
         // Parses subprocesses_json_path, loads each entry's matrix element
         // library (resolving {device} against what's actually on disk) via
@@ -216,6 +440,13 @@ using namespace madspace;
         // override. May be called again to rebuild against a different
         // event source, discarding any previously-built reweightor (see
         // WareHouse::build()).
+        //
+        // If set_streaming(true) was called, this instead opens a streaming
+        // REX::eventSource for path (which must be LHEF XML; see
+        // set_streaming()) and builds against a REX::lhe::open_streaming()
+        // lhe, without pulling any events yet -- use run_streaming() rather
+        // than warehouse().get().run() + write_weights() to actually run
+        // the reweighting in that case.
         Driver& load_events(const std::string& path, const madspace::LHEMeta& meta = {});
 
         // Which format write_weights() targets: true for
@@ -263,10 +494,22 @@ using namespace madspace;
     private:
         madspace::ContextPtr _context;
         std::vector<std::string> _device_priority = {"cpp512z", "cpp512y", "cppavx2", "cppsse4", "cppnone"};
+        std::vector<std::string> _fptype_priority = {"m", "d", "f"};
+        // Unset (see set_normaliser_fptype_priority()'s own doc comment) by
+        // default: _normaliser_fptype_priority_set distinguishes "never
+        // called set_normaliser_fptype_priority()" from "called it with an
+        // explicitly empty priority" (itself a legal, meaningful value --
+        // "auto-use a lone match, throw on ambiguity", same as
+        // fptype_priority()'s own empty-priority meaning).
+        std::vector<std::string> _normaliser_fptype_priority;
+        bool _normaliser_fptype_priority_set = false;
         WareHouse _warehouse;
         std::vector<SubProcessSpec> _specs;
         ParamHandler _param_handler;
         bool _binary_output = false;
+        bool _use_helicity = false;
+        bool _streaming = false;
+        std::size_t _stream_batch_size = 10000;
     };
 
 }

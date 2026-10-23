@@ -23,7 +23,7 @@ from .python_function import PythonFunction
 # pybind11 submodules aren't auto-importable as `import madspace.madtrex` --
 # only attribute access (`import madspace; madspace.madtrex`) works out of the
 # box, since the submodule's own __name__ is "_madspace_py.madtrex", not
-# "madspace.madtrex" (same fix as rex/__init__.py uses for rex.tea).
+# "madspace.madtrex" (same fix as pyrex/__init__.py uses for pyrex.tea).
 sys.modules["madspace.madtrex"] = madtrex
 
 

@@ -73,8 +73,10 @@ endif
 # already-loaded library of that name anywhere in the process, regardless of RUNPATH,
 # so two "libmadmatrix_common_<backend>.so" from different models would otherwise
 # silently alias -- the second model's process code ends up bound to the first
-# model's Parameters implementation.
-MADMATRIX_COMMONLIB = madmatrix_common_%(model)s_$(BACKEND)
+# model's Parameters implementation. FPTYPE is appended too, purely for naming
+# consistency with MADMATRIX_LIB (SubProcesses/madmatrix.mk); FPTYPE is exported from
+# there, same as BACKEND.
+MADMATRIX_COMMONLIB = madmatrix_common_%(model)s_$(BACKEND)_$(FPTYPE)
 
 # Name recorded in the library itself, and hence in whatever links against it.
 # Without it the linker bakes in the absolute build path (LIBDIR), so the process

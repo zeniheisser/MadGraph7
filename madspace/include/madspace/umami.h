@@ -265,7 +265,7 @@ UmamiStatus umami_set_parameter(
  *     for real-valued parameters (i.e. you may pass a null pointer)
  * @return
  *     UMAMI_SUCCESS on success, UMAMI_ERROR_UNKNOWN_PARAMETER if "name" is not
- *     a known parameter or coupling error code otherwise
+ *     a known parameter, error code otherwise
  */
 UmamiStatus umami_get_parameter(
     UmamiHandle handle, char const* name, double* parameter_real, double* parameter_imag
