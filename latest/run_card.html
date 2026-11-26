@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Custom functions" href="custom_functions.html"><link rel="prev" title="First steps" href="first_steps.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Custom functions" href="custom_functions.html"><link rel="prev" title="Standalone matrix elements" href="standalone.html">
         <link rel="canonical" href="https://docs.madgraph.org/latest/run_card.html">
         <link rel="prefetch" href="_static/logo-light.png" as="image">
         <link rel="prefetch" href="_static/logo-dark.png" as="image">
@@ -278,11 +278,15 @@
   <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tirust.html">TIRust for MadLoop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standalone.html">Standalone matrix elements</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Run card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_functions.html">Custom functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="diagram_filters.html">Diagram filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridpacks.html">Gridpacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Cluster mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_stream.html">Streaming events from Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="madevent_to_mg7.html">Coming from MadEvent</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MadSpace</span></p>
@@ -305,12 +309,15 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="madspace/python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -330,14 +337,21 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EnergyScale.html">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/HistItem.html">HistItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Integrand.html">Integrand</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -348,9 +362,14 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/VegasHistogram.html">VegasHistogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Decay.html">Decay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Diagram.html">Diagram</a></li>
@@ -358,6 +377,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DataType.html">DataType</a></li>
@@ -370,6 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -379,6 +400,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventGenerator.html">EventGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventHistograms.html">EventHistograms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/GeneratorStatus.html">GeneratorStatus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Histogram.html">Histogram</a></li>
@@ -409,6 +431,9 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/VegasGridOptimizer.html">VegasGridOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Verbosity.html">Verbosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/cpu_device.html">cpu_device</a></li>
@@ -422,7 +447,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="madspace/python/set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/weighting_groups_to_json.html">weighting_groups_to_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungQTerm.html">BeamstrahlungQTerm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MergingCut.html">MergingCut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/NamedTypes.html">NamedTypes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/NamedValues.html">NamedValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PythonFunction.html">PythonFunction</a></li>
@@ -434,12 +464,15 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="madspace/cpp-api.html">C++ API</a><input aria-label="Toggle navigation of C++ API" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -457,6 +490,8 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EnergyScale.html">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GradientClipper.html">GradientClipper</a></li>
@@ -465,9 +500,14 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandCommonPart.html">IntegrandCommonPart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandConcatenator.html">IntegrandConcatenator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -478,14 +518,23 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/VegasHistogram.html">VegasHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingStepFunction.html">WeightingStepFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Diagram.html">Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonSHatResult.html">LeptonSHatResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonSplitResult.html">LeptonSplitResult</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Function.html">Function</a></li>
@@ -496,6 +545,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -510,10 +560,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventHistograms.html">EventHistograms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventRecord.html">EventRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FieldLayout.html">FieldLayout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorBatchJob.html">GeneratorBatchJob</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorStatus.html">GeneratorStatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GzipCompressor.html">GzipCompressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Histogram.html">Histogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LHECompleter.html">LHECompleter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LHEEvent.html">LHEEvent</a></li>
@@ -540,6 +592,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Runtime.html">Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Sizes.html">Sizes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StatusFile.html">StatusFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepChainResult.html">StepChainResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepEvents.html">StepEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepIntegral.html">StepIntegral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepSettings.html">StepSettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepStatistics.html">StepStatistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepSums.html">StepSums</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubprocessObservables.html">SubprocessObservables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubprocessSystArgs.html">SubprocessSystArgs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SystematicsCalculator.html">SystematicsCalculator</a></li>
@@ -554,6 +612,10 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/UnalignedRef.html">UnalignedRef</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/VegasGridOptimizer.html">VegasGridOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingPipeline.html">WeightingPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/cpu_device.html">cpu_device</a></li>
@@ -567,9 +629,70 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/weighting_groups_to_json.html">weighting_groups_to_json</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/NamedVector.html">NamedVector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Overloaded.html">Overloaded</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">pyAmpliCol</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#install-and-try-it">Install and try it</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#one-artifact-several-interfaces">One artifact, several interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#explore-the-documentation">Explore the documentation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/installation.html">Installation</a><input aria-label="Toggle navigation of Installation" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/quick-start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/examples-gallery.html">Examples Gallery</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/gentle-walkthrough.html">Get started: a gentle walkthrough</a><input aria-label="Toggle navigation of Get started: a gentle walkthrough" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/lc-workloads-and-execution-modes.html">LC workloads and execution modes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/configuration.html">Configuration</a><input aria-label="Toggle navigation of Configuration" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/models-and-processes.html">Models and Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/ufo-model-coverage.html">UFO Model Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/process-selection-and-permutations.html">Process Selection and Permutations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/process-grouping.html">Process grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/generation-modes-and-evaluators.html">Generation Modes and Evaluators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/command-line-interface.html">Command-Line Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/runtime-and-selectors.html">Runtime and Selectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/native-apis.html">Native APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/artifacts-and-portability.html">Artifacts and Portability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/umami-api.html">UMAMI and MadSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/reference/recurrence-export.html">Resolved recurrence export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/correlators.html">Tree-level spin and colour correlations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/correlator-conventions.html">Conventions for spin- and colour-correlated Born quantities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/profiling-and-benchmarking.html">Profiling and Benchmarking</a><input aria-label="Toggle navigation of Profiling and Benchmarking" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/release-and-support.html">Release and Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/architecture-overview.html">Architecture Overview</a><input aria-label="Toggle navigation of Architecture Overview" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/symbolica-and-licensing.html">Symbolica and Licensing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/development/README.html">Development Documentation</a><input aria-label="Toggle navigation of Development Documentation" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/API_CONTRACT.html">Public API Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/CONFIG_CONTRACT.html">Configuration Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/ARCHITECTURE_DECISIONS.html">Architecture Decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/PACKAGING_CONTRACT.html">Packaging And Release Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/PHYSICS_EXTRACTION_CONTRACT.html">Physics Extraction Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/MODEL_ASSET_PROVENANCE.html">Model Asset Provenance</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyamplicol/development/model-assets/README.html">Packaged Model Assets</a><input aria-label="Toggle navigation of Packaged Model Assets" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyamplicol/development/model-assets/TRANSFORMATIONS.html">Model Asset Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/ON_THE_FLY_MODE_ARCHITECTURE.html">On-the-fly Mode Architecture and Implementation Record</a></li>
 </ul>
 </li>
 </ul>
@@ -650,13 +773,28 @@ followed by a device index such as <code class="docutils literal notranslate"><s
 <code class="docutils literal notranslate"><span class="pre">simd_256</span></code>, <code class="docutils literal notranslate"><span class="pre">simd_512</span></code> and <code class="docutils literal notranslate"><span class="pre">avx512y</span></code>. <code class="docutils literal notranslate"><span class="pre">auto</span></code> picks the widest width the host
 supports.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">precision</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;color32&quot;</span></code>)</dt><dd><p>Floating-point precision of the matrix elements. <code class="docutils literal notranslate"><span class="pre">all64</span></code> and <code class="docutils literal notranslate"><span class="pre">all32</span></code> use double and
-single precision throughout. <code class="docutils literal notranslate"><span class="pre">color32</span></code> evaluates the color algebra in single precision
-and everything else in double precision. <code class="docutils literal notranslate"><span class="pre">denom64</span></code> keeps the momenta and propagator
-denominators in double precision and uses single precision elsewhere.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">madspace_cpu_mode</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>)</dt><dd><p>SIMD width of the phase-space sampling on <code class="docutils literal notranslate"><span class="pre">cpu</span></code> devices. Choose from <code class="docutils literal notranslate"><span class="pre">auto</span></code>,
+<code class="docutils literal notranslate"><span class="pre">scalar</span></code>, <code class="docutils literal notranslate"><span class="pre">simd_128</span></code> (ARM only), <code class="docutils literal notranslate"><span class="pre">simd_256</span></code>, <code class="docutils literal notranslate"><span class="pre">avx512y</span></code> and <code class="docutils literal notranslate"><span class="pre">simd_512</span></code>.
+<code class="docutils literal notranslate"><span class="pre">auto</span></code> picks <code class="docutils literal notranslate"><span class="pre">simd_512</span></code>, then <code class="docutils literal notranslate"><span class="pre">simd_256</span></code> on x86. On ARM it picks <code class="docutils literal notranslate"><span class="pre">scalar</span></code>,
+because the vectorized mode is currently slower there.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">simd_vector_size</span></code> (<code class="docutils literal notranslate"><span class="pre">-1</span></code>)</dt><dd><p>Vector size of the CPU matrix elements. <code class="docutils literal notranslate"><span class="pre">-1</span></code> chooses automatically. Valid sizes are 1,
-4 and 8 on x86 and 1 and 2 on Apple silicon.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">precision</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;denom64&quot;</span></code>)</dt><dd><p>Floating-point precision of the matrix elements. <code class="docutils literal notranslate"><span class="pre">all64</span></code> and <code class="docutils literal notranslate"><span class="pre">all32</span></code> use double and
+single precision throughout. <code class="docutils literal notranslate"><span class="pre">color32</span></code> evaluates the color algebra in single precision
+and everything else in double precision. <code class="docutils literal notranslate"><span class="pre">denom64</span></code>, the default, keeps the momenta and
+propagator denominators in double precision and uses single precision elsewhere.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">precision_check</span></code> (<code class="docutils literal notranslate"><span class="pre">0</span></code>)</dt><dd><p>Fraction of the events evaluated again with the matrix elements in <code class="docutils literal notranslate"><span class="pre">all64</span></code>, to check
+the precision of a run in any other precision. Off by default, because the run then
+also builds an <code class="docutils literal notranslate"><span class="pre">all64</span></code> CPU library of each subprocess (<code class="docutils literal notranslate"><span class="pre">[run]</span> <span class="pre">validation</span></code>
+reweights the whole sample through MadtRex instead). Once the events are written, the
+two are compared at the momenta of events drawn at random from the output (at most
+1000 of them, hidden entry <code class="docutils literal notranslate"><span class="pre">precision_check_max_events</span></code>). With
+<code class="docutils literal notranslate"><span class="pre">r</span> <span class="pre">=</span> <span class="pre">|M|^2</span> <span class="pre">/</span> <span class="pre">|M|^2_all64</span> <span class="pre">-</span> <span class="pre">1</span></code> per event, the mean of <code class="docutils literal notranslate"><span class="pre">r</span></code> (the relative change of the
+cross section, since unweighted events already follow <code class="docutils literal notranslate"><span class="pre">|M|^2</span></code>), the mean and the
+maximum of <code class="docutils literal notranslate"><span class="pre">|r|</span></code> are logged and written to <code class="docutils literal notranslate"><span class="pre">Events/&lt;run&gt;/precision_check.json</span></code>; the
+run warns when an event deviates by more than <code class="docutils literal notranslate"><span class="pre">1e-3</span></code> (hidden entry
+<code class="docutils literal notranslate"><span class="pre">precision_check_threshold</span></code>) or is not finite, in which case <code class="docutils literal notranslate"><span class="pre">all64</span></code> or <code class="docutils literal notranslate"><span class="pre">color32</span></code>
+is the safer choice for that process.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">cpu_thread_pool_size</span></code> (<code class="docutils literal notranslate"><span class="pre">-1</span></code>), <code class="docutils literal notranslate"><span class="pre">gpu_thread_pool_size</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">combine_thread_pool_size</span></code> (<code class="docutils literal notranslate"><span class="pre">-1</span></code>)</dt><dd><p>Number of threads for each <code class="docutils literal notranslate"><span class="pre">cpu</span></code> device, each GPU device and for combining the
 channel results. <code class="docutils literal notranslate"><span class="pre">-1</span></code> chooses based on the number of CPUs.</p>
@@ -712,7 +850,8 @@ with VEGAS, once the grid of every channel has converged.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fix_max_weight</span></code>: no events. Each channel runs until <code class="docutils literal notranslate"><span class="pre">freeze_max_weight_after</span></code>
 unweighted events are reached. Its maximum weight is then fixed in the gridpack,
 and its integral is used to share the events between the channels. This can be
-slow for channels with a low unweighting efficiency.</p></li>
+slow for channels with a low unweighting efficiency. The gridpack also gets
+<code class="docutils literal notranslate"><span class="pre">bin/event_stream.py</span></code> to stream events in memory from Python.</p></li>
 </ul>
 <p>See <a class="reference internal" href="gridpacks.html#gridpack-run-mode"><span class="std std-ref">Ending the run</span></a>.</p>
 </dd>
@@ -726,6 +865,60 @@ environment variable.</p>
 </dd>
 </dl>
 </section>
+<section id="cluster">
+<h2>[cluster]<a class="headerlink" href="#cluster" title="Link to this heading">¶</a></h2>
+<p>Cluster mode trains the subprocesses and generates the events in parallel batch jobs.
+It is off by default, and then this section, <code class="docutils literal notranslate"><span class="pre">[cluster_train]</span></code> and <code class="docutils literal notranslate"><span class="pre">[cluster_deploy]</span></code>
+are left out of the card until <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">cluster.enable</span> <span class="pre">true</span></code> (or one of their settings differs
+from the site default in <code class="docutils literal notranslate"><span class="pre">input/default_run_card_mg7.toml</span></code>, where their defaults come from). See <a class="reference internal" href="cluster.html"><span class="doc">Cluster mode</span></a> for how it works.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">enable</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</dt><dd><p>Run on a batch system. Independent of the <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> of the MadGraph configuration.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mode</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">full</span></code> runs both passes and combines the events. <code class="docutils literal notranslate"><span class="pre">gridpack_only</span></code> only trains, and
+the merged gridpack is the result.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">type</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>)</dt><dd><p>The batch system: <code class="docutils literal notranslate"><span class="pre">condor</span></code>, <code class="docutils literal notranslate"><span class="pre">pbs</span></code>, <code class="docutils literal notranslate"><span class="pre">sge</span></code>, <code class="docutils literal notranslate"><span class="pre">lsf</span></code>, <code class="docutils literal notranslate"><span class="pre">ge</span></code>, <code class="docutils literal notranslate"><span class="pre">slurm</span></code>,
+<code class="docutils literal notranslate"><span class="pre">htcaas</span></code>, <code class="docutils literal notranslate"><span class="pre">htcaas2</span></code>, the batch system of a plugin (<code class="docutils literal notranslate"><span class="pre">new_cluster</span></code>), or
+<code class="docutils literal notranslate"><span class="pre">local_parallel</span></code> to run the jobs on this machine. <code class="docutils literal notranslate"><span class="pre">auto</span></code> takes <code class="docutils literal notranslate"><span class="pre">cluster_type</span></code> of
+the MadGraph configuration.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">parallel_jobs</span></code> (<code class="docutils literal notranslate"><span class="pre">-1</span></code>)</dt><dd><p>Jobs running at once with <code class="docutils literal notranslate"><span class="pre">local_parallel</span></code>. <code class="docutils literal notranslate"><span class="pre">-1</span></code> uses every core. The threads of
+each job are divided accordingly if <code class="docutils literal notranslate"><span class="pre">cpu_thread_pool_size</span></code> is <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">train_queue</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">deploy_queue</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>)</dt><dd><p>The queue (partition) of the jobs. <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> takes <code class="docutils literal notranslate"><span class="pre">cluster_queue</span></code> of the MadGraph
+configuration.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">train_walltime</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">deploy_walltime</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>)</dt><dd><p>The walltime of the jobs, in the format of the batch system. Used for <code class="docutils literal notranslate"><span class="pre">slurm</span></code> and
+<code class="docutils literal notranslate"><span class="pre">condor</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">train_extra_args</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">deploy_extra_args</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>)</dt><dd><p>Further arguments of the submit command, for example <code class="docutils literal notranslate"><span class="pre">&quot;--gres=gpu:1&quot;</span></code> for
+<code class="docutils literal notranslate"><span class="pre">slurm</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;-l</span> <span class="pre">select=1:ngpus=1&quot;</span></code> for <code class="docutils literal notranslate"><span class="pre">pbs</span></code>. For <code class="docutils literal notranslate"><span class="pre">condor</span></code> they are lines of
+the submit file separated by <code class="docutils literal notranslate"><span class="pre">;</span></code>, for example <code class="docutils literal notranslate"><span class="pre">&quot;request_gpus</span> <span class="pre">=</span> <span class="pre">1;</span> <span class="pre">request_memory</span> <span class="pre">=</span>
+<span class="pre">8GB&quot;</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">subprocesses_per_job</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>)</dt><dd><p>The number of subprocesses (merge groups with <code class="docutils literal notranslate"><span class="pre">merge_subprocesses</span></code>) that are
+trained together in one job. Raise it for a process with many small subprocesses.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">fix_max_weight</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">true</span></code>: the training jobs store the maximum weight of every channel, as for a
+gridpack with <code class="docutils literal notranslate"><span class="pre">run_mode</span> <span class="pre">=</span> <span class="pre">&quot;fix_max_weight&quot;</span></code>, and all generation jobs unweight
+against it. This is the statistically correct choice. <code class="docutils literal notranslate"><span class="pre">false</span></code>: every generation job
+estimates the maximum weights on its own, which saves time in the training.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">events_per_job</span></code> (<code class="docutils literal notranslate"><span class="pre">100000</span></code>)</dt><dd><p>The events of one generation job. The <code class="docutils literal notranslate"><span class="pre">[generation]</span></code> <code class="docutils literal notranslate"><span class="pre">events</span></code> are split into
+<code class="docutils literal notranslate"><span class="pre">ceil(events</span> <span class="pre">/</span> <span class="pre">events_per_job)</span></code> jobs of almost equal size.</p>
+</dd>
+</dl>
+<p>A few more options are hidden: <code class="docutils literal notranslate"><span class="pre">nb_retry</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>, how often a failed job is submitted
+again), <code class="docutils literal notranslate"><span class="pre">retry_wait</span></code> (<code class="docutils literal notranslate"><span class="pre">300</span></code>, seconds a job is given to deliver its output),
+<code class="docutils literal notranslate"><span class="pre">status_update</span></code> (<code class="docutils literal notranslate"><span class="pre">[600,</span> <span class="pre">30]</span></code>, seconds between status checks), <code class="docutils literal notranslate"><span class="pre">temp_path</span></code> (the
+<code class="docutils literal notranslate"><span class="pre">cluster_temp_path</span></code> of the configuration) and <code class="docutils literal notranslate"><span class="pre">keep_job_files</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>, keep the
+gridpacks of the training jobs once merged, and the event files of the generation
+jobs once combined; their logs and info.json are always kept).</p>
+<p>The devices, threads and batch sizes of the training and of the generation jobs are set
+in the <code class="docutils literal notranslate"><span class="pre">[cluster_train]</span></code> and <code class="docutils literal notranslate"><span class="pre">[cluster_deploy]</span></code> sections, for example
+<code class="docutils literal notranslate"><span class="pre">run.device</span> <span class="pre">=</span> <span class="pre">[&quot;cuda&quot;]</span></code> in <code class="docutils literal notranslate"><span class="pre">[cluster_train]</span></code> and <code class="docutils literal notranslate"><span class="pre">run.device</span> <span class="pre">=</span> <span class="pre">[&quot;cpu&quot;]</span></code> in
+<code class="docutils literal notranslate"><span class="pre">[cluster_deploy]</span></code> to train on GPUs and generate on CPUs. See <a class="reference internal" href="cluster.html"><span class="doc">Cluster mode</span></a>.</p>
+</section>
 <section id="beam">
 <h2>[beam]<a class="headerlink" href="#beam" title="Link to this heading">¶</a></h2>
 <dl class="simple">
@@ -736,7 +929,9 @@ energies the events are written, and the <span class="math notranslate nohighlig
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">leptonic</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</dt><dd><p>Treat the beams as leptons: no PDFs are used and the partonic energy equals the
 collision energy. This is set automatically for lepton-collider processes, together
-with 500 GeV beams and no jet cuts.</p>
+with 500 GeV beams; the jet cuts stay, as in madevent. Without a PDF,
+<span class="math notranslate nohighlight">\(\alpha_s\)</span> is the 2-loop running of the <span class="math notranslate nohighlight">\(\alpha_s(m_Z)\)</span> of the param card,
+as madevent does, and <code class="docutils literal notranslate"><span class="pre">pdf1</span></code>/<code class="docutils literal notranslate"><span class="pre">pdf2</span></code> are not used (nor downloaded).</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">pdf1</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;NNPDF40_lo_as_01180&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">pdf2</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;NNPDF40_lo_as_01180&quot;</span></code>)</dt><dd><p>Name of the LHAPDF set of each beam. <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">beam.pdf</span> <span class="pre">X</span></code> sets both. MG7 tries to
 download a set that is not installed. The default is the 5-flavor NNPDF 4.0 LO set,
@@ -754,7 +949,16 @@ energies of the final-state particles. <code class="docutils literal notranslate
 transverse masses, <span class="math notranslate nohighlight">\(H_T\)</span>. <code class="docutils literal notranslate"><span class="pre">half_transverse_mass</span></code> is <span class="math notranslate nohighlight">\(H_T/2\)</span>.
 <code class="docutils literal notranslate"><span class="pre">partonic_energy</span></code> is the partonic center-of-mass energy. <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">dynamical_scale_choice</span>
 <span class="pre">HT/4</span></code> is a shortcut that sets this parameter and <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> to give
-<span class="math notranslate nohighlight">\(H_T/4\)</span>.</p>
+<span class="math notranslate nohighlight">\(H_T/4\)</span>. <code class="docutils literal notranslate"><span class="pre">ckkwl</span></code> is the clustering scale of the diagram, without the
+<span class="math notranslate nohighlight">\(\alpha_s\)</span> and PDF reweighting of MLM merging: MadEvent’s default <code class="docutils literal notranslate"><span class="pre">-1</span></code> for a
+CKKW-L merged sample, where Pythia8 does that reweighting. An <code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code> event is
+clustered along the planar diagrams of its leading-colour flow, which differ from the
+diagrams a madmatrix event is clustered along. Under <code class="docutils literal notranslate"><span class="pre">mlm</span></code> and <code class="docutils literal notranslate"><span class="pre">ckkwl</span></code> the scales
+are those of the clustering: the fixed scales and <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> are ignored.
+For madmatrix, <code class="docutils literal notranslate"><span class="pre">ckkwl</span></code> scores clusterings with the hidden <code class="docutils literal notranslate"><span class="pre">clustering_measure</span></code>, so
+the scales of jet events differ slightly from MadEvent’s <code class="docutils literal notranslate"><span class="pre">-1</span></code>: higher with the default
+<code class="docutils literal notranslate"><span class="pre">&quot;fxfx&quot;</span></code>, lower with <code class="docutils literal notranslate"><span class="pre">&quot;madevent&quot;</span></code>. The merged cross section barely changes, since Pythia8
+redoes the <span class="math notranslate nohighlight">\(\alpha_s\)</span> reweighting.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">scale_factor</span></code> (<code class="docutils literal notranslate"><span class="pre">1.0</span></code>)</dt><dd><p>Factor applied to the dynamical scale. Fixed scales are not affected. With the default
 choice, <code class="docutils literal notranslate"><span class="pre">scale_factor</span> <span class="pre">=</span> <span class="pre">0.5</span></code> gives <span class="math notranslate nohighlight">\(H_T/4\)</span>.</p>
@@ -845,6 +1049,9 @@ step.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">damping</span></code> (<code class="docutils literal notranslate"><span class="pre">0.4</span></code>)</dt><dd><p>Damping of the grid updates. Raise it if the grid oscillates instead of settling.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">adaptive_discrete</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</dt><dd><p>Adapt the probabilities of the flavour and permutation choices during the survey,
+together with the grids. Off until it is shown to pay off.</p>
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">optimization_patience</span></code> (<code class="docutils literal notranslate"><span class="pre">5</span></code>), <code class="docutils literal notranslate"><span class="pre">optimization_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">0.9</span></code>)</dt><dd><p>The grid optimization stops when this many iterations in a row fail to improve the
 result by the given relative margin.</p>
 </dd>
@@ -880,6 +1087,28 @@ section are replaced by the flat channel.</p>
 are dropped. <code class="docutils literal notranslate"><span class="pre">-1</span></code> keeps all channels. This helps with processes that have too many
 channels.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ew_channel_reduction</span></code> (<code class="docutils literal notranslate"><span class="pre">20</span></code>)</dt><dd><p>If a subprocess still has more channels than this, channels that differ only in the
+bosons of some of their off-shell propagators are merged into one, which takes over
+their channel weights, and redundant ones are dropped (see
+<code class="docutils literal notranslate"><span class="pre">ew_channel_reduction_mode</span></code>). Channels that map a flavor or a (flavor, resonance) pair
+no kept channel does are always kept. <code class="docutils literal notranslate"><span class="pre">-1</span></code> keeps all channels. This is the
+counterpart of <code class="docutils literal notranslate"><span class="pre">drop_qcd_s_channel</span></code> for processes with many electroweak diagrams.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ew_channel_reduction_mode</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>)</dt><dd><p>How far <code class="docutils literal notranslate"><span class="pre">ew_channel_reduction</span></code> goes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;t_channel&quot;</span></code>: merge channels that differ only in the bosons of their t-channel
+propagators (a photon, Z or W); every s-channel structure keeps its channel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;partial&quot;</span></code>: merge as <code class="docutils literal notranslate"><span class="pre">&quot;t_channel&quot;</span></code>, and keep only the channels with at most one
+non-resonant s-channel propagator more than the fewest.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>: also merge channels that differ in their off-shell s-channel bosons, and
+keep only the channels with the fewest non-resonant s-channel propagators. This
+gives the fewest channels, but trains to lower unweighting efficiencies.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">channel_reduction_with_vegas</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">ew_channel_reduction</span></code> is meant for MadNIS, which trains poorly with many channels.
+By default it is skipped when the run is certain to use VEGAS: <code class="docutils literal notranslate"><span class="pre">madnis.enable</span> <span class="pre">=</span>
+<span class="pre">false</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> for a 2 -&gt; 2 process. <code class="docutils literal notranslate"><span class="pre">true</span></code> applies it then as well.</p>
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">invariant_power</span></code> (<code class="docutils literal notranslate"><span class="pre">0.7</span></code>)</dt><dd><p>Exponent <span class="math notranslate nohighlight">\(p\)</span> of the <span class="math notranslate nohighlight">\(1/s^p\)</span> sampling of time-like invariants.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">bw_cutoff</span></code> (<code class="docutils literal notranslate"><span class="pre">15</span></code>)</dt><dd><p>Breit-Wigner propagators are sampled within this many widths of the mass. The same
@@ -890,6 +1119,26 @@ left uncut by default.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">adaptive_symmetry_sampling</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</dt><dd><p>Learn the probabilities of the permutations of identical particles instead of using
 equal ones.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ktdurham</span></code> (<code class="docutils literal notranslate"><span class="pre">0.0</span></code>)</dt><dd><p>CKKW-L merging with Pythia8: the smallest Durham <span class="math notranslate nohighlight">\(k_T\)</span> an event may have, taken
+over the <span class="math notranslate nohighlight">\(p_T\)</span> of each merging parton (hadron colliders only) and the
+<span class="math notranslate nohighlight">\(k_T = \min(p_{T,i}, p_{T,j})\,\Delta R_{ij}/D\)</span> of each pair. <code class="docutils literal notranslate"><span class="pre">0</span></code> disables it.
+Pythia8’s <code class="docutils literal notranslate"><span class="pre">Merging:TMS</span></code> defaults to this value, and <code class="docutils literal notranslate"><span class="pre">Merging:Process</span></code> has to be set
+in the Pythia8 card. Only one of <code class="docutils literal notranslate"><span class="pre">ktdurham</span></code> and <code class="docutils literal notranslate"><span class="pre">ptlund</span></code> can be set, and neither
+together with <code class="docutils literal notranslate"><span class="pre">xqcut</span></code>. On hadron colliders the phase-space sampling starts the
+<span class="math notranslate nohighlight">\(p_T\)</span> of the merging partons at this value.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ptlund</span></code> (<code class="docutils literal notranslate"><span class="pre">0.0</span></code>)</dt><dd><p>CKKW-L merging with Pythia8: the smallest Pythia8 evolution <span class="math notranslate nohighlight">\(p_T\)</span> over all ISR and
+FSR splittings that can produce a merging parton. <code class="docutils literal notranslate"><span class="pre">0</span></code> disables it. An <code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code>
+subprocess usually groups flavours that split differently (quarks and gluons), which
+this cut cannot tell apart: use <code class="docutils literal notranslate"><span class="pre">ktdurham</span></code> there.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dparameter</span></code> (<code class="docutils literal notranslate"><span class="pre">0.4</span></code>)</dt><dd><p><span class="math notranslate nohighlight">\(D\)</span> of the hadron-collider <code class="docutils literal notranslate"><span class="pre">ktdurham</span></code> measure, Pythia8’s <code class="docutils literal notranslate"><span class="pre">Merging:Dparameter</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">merging_pdgs</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>)</dt><dd><p>PDG ids of the particles the <code class="docutils literal notranslate"><span class="pre">ktdurham</span></code> or <code class="docutils literal notranslate"><span class="pre">ptlund</span></code> cut applies to. <code class="docutils literal notranslate"><span class="pre">auto</span></code> takes,
+as in MadEvent, all colored particles of the model (including the top and any colored
+BSM particles); only those in the final state matter. As in MadEvent, decay-chain products are never
+merging partons.</p>
 </dd>
 </dl>
 </section>
@@ -913,6 +1162,72 @@ the weight divided by the bias.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">&lt;function&gt;_parameters.&lt;name&gt;</span></code></dt><dd><p>A parameter of a custom function, for example <code class="docutils literal notranslate"><span class="pre">cut_parameters.pt_min</span> <span class="pre">=</span> <span class="pre">30.0</span></code>. It replaces
 the default value declared by the function. See <a class="reference internal" href="custom_functions.html#custom-function-parameters"><span class="std std-ref">Parameters</span></a>.</p>
+</dd>
+</dl>
+</section>
+<section id="surrogate">
+<span id="run-card-surrogate"></span><h2>[surrogate]<a class="headerlink" href="#surrogate" title="Link to this heading">¶</a></h2>
+<p>A fast surrogate of the matrix element, for example a neural network. The integrand and
+its optimization use the surrogate. The events are then reweighted or unweighted a second
+time with the full matrix element, which is only evaluated for the events that pass the
+first unweighting. The cross section and the events are those of the full matrix element.
+The surrogate does not return channel weights, so it needs <code class="docutils literal notranslate"><span class="pre">sde_strategy</span> <span class="pre">=</span>
+<span class="pre">&quot;denominators&quot;</span></code>. It is not supported for outputs with <code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code> subprocesses.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">function</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>)</dt><dd><p>The surrogate. An empty string disables it.</p>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">.so</span></code> library implementing the UMAMI interface. It gets the momenta,
+<span class="math notranslate nohighlight">\(\alpha_s\)</span> and the flavor index of the madmatrix libraries as inputs, and
+returns the matrix element. It is loaded once per subprocess: <code class="docutils literal notranslate"><span class="pre">{subprocess}</span></code> and
+<code class="docutils literal notranslate"><span class="pre">{device}</span></code> in the path are replaced by the subprocess name (e.g. <code class="docutils literal notranslate"><span class="pre">P1_gg_ttx</span></code>)
+and the device, like in <code class="docutils literal notranslate"><span class="pre">lib/libmadmatrix_{subprocess}_{device}.so</span></code>. It has to
+be built for the device of the run. If it implements <code class="docutils literal notranslate"><span class="pre">umami_set_parameter</span></code>, it
+gets the run-time parameters of the madmatrix libraries, such as <code class="docutils literal notranslate"><span class="pre">bwcutoff</span></code>.</p></li>
+<li><p>A Python file defining <code class="docutils literal notranslate"><span class="pre">custom_surrogate(momenta,</span> <span class="pre">pdg_ids,</span> <span class="pre">alpha_s)</span></code>, which returns
+<span class="math notranslate nohighlight">\(|M|^2\)</span> for a batch of events. <code class="docutils literal notranslate"><span class="pre">momenta</span></code> has the shape <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">n,</span> <span class="pre">4)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">pdg_ids</span></code> the shape <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">n)</span></code> and identifies subprocess and flavor, and
+<code class="docutils literal notranslate"><span class="pre">alpha_s</span></code> the shape <code class="docutils literal notranslate"><span class="pre">(batch,)</span></code>. <code class="docutils literal notranslate"><span class="pre">FRAMEWORK</span> <span class="pre">=</span> <span class="pre">&quot;torch&quot;</span></code> passes torch tensors,
+which also run on GPUs, otherwise numpy arrays are passed. See
+<a class="reference internal" href="custom_functions.html#custom-function-surrogate"><span class="std std-ref">Python surrogates</span></a>.</p></li>
+</ul>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mode</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;unweight&quot;</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;unweight&quot;</span></code> unweights the events a second time with respect to the ratio of the full
+matrix element to the surrogate. The events then have unit weights apart from
+overweights. <code class="docutils literal notranslate"><span class="pre">&quot;reweight&quot;</span></code> keeps the ratio in the event weights.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">first_pass_max_overweight_truncation</span></code> (<code class="docutils literal notranslate"><span class="pre">0.01</span></code>), <code class="docutils literal notranslate"><span class="pre">first_pass_freeze_max_weight_after</span></code> (<code class="docutils literal notranslate"><span class="pre">10000</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">max_overweight_truncation</span></code> and <code class="docutils literal notranslate"><span class="pre">freeze_max_weight_after</span></code> of the first
+unweighting, with the surrogate, in unweight mode. The ones of <code class="docutils literal notranslate"><span class="pre">[generation]</span></code> set
+the second unweighting with the full matrix element, which gives the final events,
+and the unweighting of the subprocesses without a surrogate. In reweight mode, the
+events are unweighted once, with the surrogate, as set by <code class="docutils literal notranslate"><span class="pre">[generation]</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">param_card</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>)</dt><dd><p>The param card a <code class="docutils literal notranslate"><span class="pre">.so</span></code> surrogate is initialized with. An empty string uses
+<code class="docutils literal notranslate"><span class="pre">Cards/param_card.dat</span></code>. A madmatrix library with a different param card, for example,
+is a surrogate for testing.</p>
+</dd>
+</dl>
+</section>
+<section id="amplicol">
+<h2>[amplicol]<a class="headerlink" href="#amplicol" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code> subprocesses (<code class="docutils literal notranslate"><span class="pre">generate</span> <span class="pre">p</span> <span class="pre">p</span> <span class="pre">&gt;</span> <span class="pre">j</span> <span class="pre">j</span> <span class="pre">j</span> <span class="pre">[amplicol]</span></code>) take their matrix
+elements from AmpliCol instead of Feynman diagrams. They are integrated at leading colour,
+one colour ordering at a time, over colour-ordered phase-space mappings. A second pass
+then re- or unweights the events to full colour with the ratio of the full-colour to the
+leading-colour matrix element, summed over the colour orderings, at the helicity of the
+event. These subprocesses run on CPUs only, and MG7 does not turn MLM merging on by itself
+for an output that has them.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">color_accuracy</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> corrects the events to full colour in the second pass. <code class="docutils literal notranslate"><span class="pre">&quot;lc&quot;</span></code> keeps the
+leading-colour events and skips the second pass.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mode</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;unweight&quot;</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;reweight&quot;</span></code> keeps the full- to leading-colour ratio in the event weights.
+<code class="docutils literal notranslate"><span class="pre">&quot;unweight&quot;</span></code> unweights the events a second time with respect to that ratio. The
+events then have unit weights apart from overweights.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">first_pass_max_overweight_truncation</span></code> (<code class="docutils literal notranslate"><span class="pre">0.001</span></code>), <code class="docutils literal notranslate"><span class="pre">first_pass_freeze_max_weight_after</span></code> (<code class="docutils literal notranslate"><span class="pre">10000</span></code>)</dt><dd><p><code class="docutils literal notranslate"><span class="pre">max_overweight_truncation</span></code> and <code class="docutils literal notranslate"><span class="pre">freeze_max_weight_after</span></code> of the first,
+leading-colour unweighting, in unweight mode. The ones of <code class="docutils literal notranslate"><span class="pre">[generation]</span></code> set the
+second unweighting, to full colour, which gives the final events. In reweight mode, the
+events are unweighted once, at leading colour, as set by <code class="docutils literal notranslate"><span class="pre">[generation]</span></code>.</p>
 </dd>
 </dl>
 </section>
@@ -1061,7 +1376,7 @@ constant.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">adam_beta1</span></code> (<code class="docutils literal notranslate"><span class="pre">0.9</span></code>), <code class="docutils literal notranslate"><span class="pre">adam_beta2</span></code> (<code class="docutils literal notranslate"><span class="pre">0.999</span></code>), <code class="docutils literal notranslate"><span class="pre">adam_eps</span></code> (<code class="docutils literal notranslate"><span class="pre">1e-8</span></code>), <code class="docutils literal notranslate"><span class="pre">adam_weight_decay</span></code> (<code class="docutils literal notranslate"><span class="pre">1e-4</span></code>)</dt><dd><p>Adam parameters.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">grad_clip_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">0.003</span></code>)</dt><dd><p>Maximum gradient norm. <code class="docutils literal notranslate"><span class="pre">0</span></code> disables clipping.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">grad_clip_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">0.03</span></code>)</dt><dd><p>Maximum gradient norm. <code class="docutils literal notranslate"><span class="pre">0</span></code> disables clipping.</p>
 </dd>
 </dl>
 </section>
@@ -1073,7 +1388,8 @@ constant.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">minimum_buffer_size</span></code> (<code class="docutils literal notranslate"><span class="pre">10000</span></code>)</dt><dd><p>Number of buffered samples needed before training on the buffer starts.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">buffered_steps_fraction</span></code> (<code class="docutils literal notranslate"><span class="pre">0.8</span></code>)</dt><dd><p>Fraction of the training steps done on buffered samples.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">buffered_steps_fraction</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>)</dt><dd><p>Fraction of the training steps done on buffered samples. <code class="docutils literal notranslate"><span class="pre">auto</span></code> is 0 for
+<code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code> subprocesses and 0.8 otherwise.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">buffer_skip_batches</span></code> (<code class="docutils literal notranslate"><span class="pre">1000</span></code>)</dt><dd><p>Number of initial batches that are not stored.</p>
 </dd>
@@ -1096,6 +1412,11 @@ constant.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">channel_dropping_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">0.01</span></code>), <code class="docutils literal notranslate"><span class="pre">channel_dropping_interval</span></code> (<code class="docutils literal notranslate"><span class="pre">100</span></code>)</dt><dd><p>Every <code class="docutils literal notranslate"><span class="pre">channel_dropping_interval</span></code> batches, channels that contribute less than the
 threshold fraction of the integral are dropped.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">resonance_guard</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</dt><dd><p>The channel dropping never drops the last channel that maps a resonance (a propagator
+that can go on shell, with its decay products) for a flavor. The last channel of a
+flavor is kept in any case. Without the guard, a resonance with a small share of the cross section, such as
+H -&gt; W W* in a VBS process, can lose its only channel and end up undersampled.</p>
+</dd>
 </dl>
 </section>
 <section id="networks">
@@ -1117,6 +1438,10 @@ function. The activations are <code class="docutils literal notranslate"><span c
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">cwnet_hidden_dim</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">cwnet_layers</span></code> (<code class="docutils literal notranslate"><span class="pre">3</span></code>), <code class="docutils literal notranslate"><span class="pre">cwnet_activation</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;leaky_relu&quot;</span></code>)</dt><dd><p>Size and activation of the channel weight network.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">nn_float_precision</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>)</dt><dd><p>Floating-point precision of the weights and the evaluation of all networks,
+<code class="docutils literal notranslate"><span class="pre">float32</span></code> or <code class="docutils literal notranslate"><span class="pre">float64</span></code>. The rest of the computation, including the network
+outputs, softmaxes and Jacobians, stays in double precision.</p>
+</dd>
 </dl>
 </section>
 </section>
@@ -1136,14 +1461,14 @@ function. The activations are <code class="docutils literal notranslate"><span c
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="first_steps.html">
+          <a class="prev-page" href="standalone.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">First steps</div>
+                <div class="title">Standalone matrix elements</div>
                 
               </div>
             </a>
@@ -1181,6 +1506,7 @@ function. The activations are <code class="docutils literal notranslate"><span c
 <li><a class="reference internal" href="#editing-the-run-card">Editing the run card</a></li>
 <li><a class="reference internal" href="#run">[run]</a></li>
 <li><a class="reference internal" href="#gridpack">[gridpack]</a></li>
+<li><a class="reference internal" href="#cluster">[cluster]</a></li>
 <li><a class="reference internal" href="#beam">[beam]</a></li>
 <li><a class="reference internal" href="#generation">[generation]</a></li>
 <li><a class="reference internal" href="#systematics">[systematics]</a></li>
@@ -1188,6 +1514,8 @@ function. The activations are <code class="docutils literal notranslate"><span c
 <li><a class="reference internal" href="#vegas">[vegas]</a></li>
 <li><a class="reference internal" href="#phasespace">[phasespace]</a></li>
 <li><a class="reference internal" href="#custom-functions">[custom_functions]</a></li>
+<li><a class="reference internal" href="#surrogate">[surrogate]</a></li>
+<li><a class="reference internal" href="#amplicol">[amplicol]</a></li>
 <li><a class="reference internal" href="#multiparticles">[multiparticles]</a></li>
 <li><a class="reference internal" href="#cuts">[cuts]</a></li>
 <li><a class="reference internal" href="#histograms">[histograms]</a></li>
@@ -1215,6 +1543,7 @@ function. The activations are <code class="docutils literal notranslate"><span c
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

@@ -15,12 +15,15 @@ Invertible maps between the unit hypercube and physical phase space; each also r
 
    python/ChiliMapping
    python/ColorOrderedMapping
+   python/DiscreteFlavorLevels
    python/DiscreteFlow
    python/DiscreteSampler
    python/DoubleT
    python/FastRamboMapping
    python/Flow
    python/Invariant
+   python/LeptonLuminosity
+   python/LeptonLuminosityInvariant
    python/Luminosity
    python/Mapping
    python/MultiChannelMapping
@@ -49,14 +52,21 @@ Builders that assemble compute-graph functions for channel weights, energy scale
    python/Cuts
    python/DifferentialCrossSection
    python/DiscreteHistogram
+   python/EELuminosity
+   python/EEPartonDensity
    python/EnergyScale
    python/FunctionGenerator
    python/HistItem
    python/Integrand
    python/IntegrandProbability
+   python/MLMClustering
+   python/MLMClusteringAlongDiagram
+   python/MLMClusteringWithFlavors
    python/MLP
    python/MadnisLoss
+   python/MappingChannelWeights
    python/MatrixElement
+   python/MergingScale
    python/MomentumPreprocessing
    python/MultiChannelFunction
    python/MultiChannelIntegrand
@@ -67,6 +77,7 @@ Builders that assemble compute-graph functions for channel weights, energy scale
    python/PropagatorChannelWeights
    python/RunningCoupling
    python/SubchannelWeights
+   python/TabulatedLuminosity
    python/Unweighter
    python/VegasHistogram
 
@@ -79,6 +90,10 @@ Supporting types shared by the mappings: topologies, cuts, observables and densi
    :maxdepth: 1
 
    python/AlphaSGrid
+   python/BeamstrahlungParameters
+   python/BeamstrahlungSampler
+   python/ClusteringClass
+   python/ClusteringLine
    python/CustomPdf
    python/Decay
    python/Diagram
@@ -86,6 +101,7 @@ Supporting types shared by the mappings: topologies, cuts, observables and densi
    python/PdfGrid
    python/Propagator
    python/Topology
+   python/WeightingStep
    python/initialize_vegas_grid
 
 Compute graph
@@ -107,6 +123,7 @@ The typed value model and the builder API used to record and compile functions f
    python/Value
    python/batch_float_array
    python/batch_four_vec_array
+   python/fuse_instructions
    python/multichannel_batch_size
 
 Driver and runtime
@@ -125,6 +142,7 @@ The high-level driver plus the tensor and device layer it runs on: integration, 
    python/EventGenerator
    python/EventHistogramSpec
    python/EventHistograms
+   python/EventStream
    python/GeneratorConfig
    python/GeneratorStatus
    python/Histogram
@@ -155,6 +173,9 @@ The high-level driver plus the tensor and device layer it runs on: integration, 
    python/Variation
    python/VegasGridOptimizer
    python/Verbosity
+   python/WeightingGroup
+   python/apply_mlm_collider_shower_scale
+   python/apply_mlm_hardest_shower_scale
    python/available_backends
    python/compute_generation_batch_event_count
    python/cpu_device
@@ -168,7 +189,10 @@ The high-level driver plus the tensor and device layer it runs on: integration, 
    python/hip_device
    python/select_combine_channel_index
    python/set_lib_path
-   python/set_simd_vector_size
+   python/set_simd_mode
+   python/supported_simd_modes
+   python/weighting_groups_from_json
+   python/weighting_groups_to_json
 
 Utilities
 ---------
@@ -178,6 +202,8 @@ Lower-level helpers and containers.
 .. toctree::
    :maxdepth: 1
 
+   python/BeamstrahlungQTerm
+   python/MergingCut
    python/NamedTypes
    python/NamedValues
    python/PythonFunction

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="FunctionGenerator" href="FunctionGenerator.html"><link rel="prev" title="DiscreteHistogram" href="DiscreteHistogram.html">
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="FunctionGenerator" href="FunctionGenerator.html"><link rel="prev" title="EEPartonDensity" href="EEPartonDensity.html">
         <link rel="canonical" href="https://docs.madgraph.org/latest/madspace/cpp/EnergyScale.html">
         <link rel="prefetch" href="../../_static/logo-light.png" as="image">
         <link rel="prefetch" href="../../_static/logo-dark.png" as="image">
@@ -278,11 +278,15 @@
   <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tirust.html">TIRust for MadLoop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../first_steps.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../standalone.html">Standalone matrix elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../run_card.html">Run card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../custom_functions.html">Custom functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../diagram_filters.html">Diagram filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gridpacks.html">Gridpacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cluster.html">Cluster mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../event_stream.html">Streaming events from Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../madevent_to_mg7.html">Coming from MadEvent</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MadSpace</span></p>
@@ -305,12 +309,15 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../python/ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -330,14 +337,21 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/EnergyScale.html">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/HistItem.html">HistItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Integrand.html">Integrand</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -348,9 +362,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/VegasHistogram.html">VegasHistogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Decay.html">Decay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Diagram.html">Diagram</a></li>
@@ -358,6 +377,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/DataType.html">DataType</a></li>
@@ -370,6 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -379,6 +400,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/EventGenerator.html">EventGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/EventHistograms.html">EventHistograms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/GeneratorStatus.html">GeneratorStatus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Histogram.html">Histogram</a></li>
@@ -409,6 +431,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/VegasGridOptimizer.html">VegasGridOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/Verbosity.html">Verbosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/cpu_device.html">cpu_device</a></li>
@@ -422,7 +447,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../python/hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../python/set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/weighting_groups_to_json.html">weighting_groups_to_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/BeamstrahlungQTerm.html">BeamstrahlungQTerm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../python/MergingCut.html">MergingCut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/NamedTypes.html">NamedTypes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/NamedValues.html">NamedValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../python/PythonFunction.html">PythonFunction</a></li>
@@ -434,12 +464,15 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../cpp-api.html">C++ API</a><input aria-label="Toggle navigation of C++ API" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -457,6 +490,8 @@
 <li class="toctree-l2"><a class="reference internal" href="Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="GradientClipper.html">GradientClipper</a></li>
@@ -465,9 +500,14 @@
 <li class="toctree-l2"><a class="reference internal" href="IntegrandCommonPart.html">IntegrandCommonPart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="IntegrandConcatenator.html">IntegrandConcatenator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -478,14 +518,23 @@
 <li class="toctree-l2"><a class="reference internal" href="PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="VegasHistogram.html">VegasHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WeightingStepFunction.html">WeightingStepFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Diagram.html">Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="LeptonSHatResult.html">LeptonSHatResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="LeptonSplitResult.html">LeptonSplitResult</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Function.html">Function</a></li>
@@ -496,6 +545,7 @@
 <li class="toctree-l2"><a class="reference internal" href="Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -510,10 +560,12 @@
 <li class="toctree-l2"><a class="reference internal" href="EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EventHistograms.html">EventHistograms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="EventRecord.html">EventRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FieldLayout.html">FieldLayout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="GeneratorBatchJob.html">GeneratorBatchJob</a></li>
 <li class="toctree-l2"><a class="reference internal" href="GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="GeneratorStatus.html">GeneratorStatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GzipCompressor.html">GzipCompressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Histogram.html">Histogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="LHECompleter.html">LHECompleter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="LHEEvent.html">LHEEvent</a></li>
@@ -540,6 +592,12 @@
 <li class="toctree-l2"><a class="reference internal" href="Runtime.html">Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Sizes.html">Sizes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="StatusFile.html">StatusFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepChainResult.html">StepChainResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepEvents.html">StepEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepIntegral.html">StepIntegral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepSettings.html">StepSettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepStatistics.html">StepStatistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StepSums.html">StepSums</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SubprocessObservables.html">SubprocessObservables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SubprocessSystArgs.html">SubprocessSystArgs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SystematicsCalculator.html">SystematicsCalculator</a></li>
@@ -554,6 +612,10 @@
 <li class="toctree-l2"><a class="reference internal" href="UnalignedRef.html">UnalignedRef</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="VegasGridOptimizer.html">VegasGridOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WeightingPipeline.html">WeightingPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpu_device.html">cpu_device</a></li>
@@ -567,9 +629,70 @@
 <li class="toctree-l2"><a class="reference internal" href="hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="weighting_groups_to_json.html">weighting_groups_to_json</a></li>
 <li class="toctree-l2"><a class="reference internal" href="NamedVector.html">NamedVector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Overloaded.html">Overloaded</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">pyAmpliCol</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pyamplicol/README.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyamplicol/README.html#install-and-try-it">Install and try it</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyamplicol/README.html#one-artifact-several-interfaces">One artifact, several interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pyamplicol/README.html#explore-the-documentation">Explore the documentation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/installation.html">Installation</a><input aria-label="Toggle navigation of Installation" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/quick-start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/examples-gallery.html">Examples Gallery</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/gentle-walkthrough.html">Get started: a gentle walkthrough</a><input aria-label="Toggle navigation of Get started: a gentle walkthrough" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/lc-workloads-and-execution-modes.html">LC workloads and execution modes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/configuration.html">Configuration</a><input aria-label="Toggle navigation of Configuration" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/models-and-processes.html">Models and Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/ufo-model-coverage.html">UFO Model Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/process-selection-and-permutations.html">Process Selection and Permutations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/process-grouping.html">Process grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/generation-modes-and-evaluators.html">Generation Modes and Evaluators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/command-line-interface.html">Command-Line Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/runtime-and-selectors.html">Runtime and Selectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/native-apis.html">Native APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/artifacts-and-portability.html">Artifacts and Portability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/umami-api.html">UMAMI and MadSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/reference/recurrence-export.html">Resolved recurrence export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/correlators.html">Tree-level spin and colour correlations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/correlator-conventions.html">Conventions for spin- and colour-correlated Born quantities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/profiling-and-benchmarking.html">Profiling and Benchmarking</a><input aria-label="Toggle navigation of Profiling and Benchmarking" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/release-and-support.html">Release and Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/user/architecture-overview.html">Architecture Overview</a><input aria-label="Toggle navigation of Architecture Overview" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/user/symbolica-and-licensing.html">Symbolica and Licensing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../pyamplicol/development/README.html">Development Documentation</a><input aria-label="Toggle navigation of Development Documentation" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/API_CONTRACT.html">Public API Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/CONFIG_CONTRACT.html">Configuration Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/ARCHITECTURE_DECISIONS.html">Architecture Decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/PACKAGING_CONTRACT.html">Packaging And Release Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/PHYSICS_EXTRACTION_CONTRACT.html">Physics Extraction Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/MODEL_ASSET_PROVENANCE.html">Model Asset Provenance</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../pyamplicol/development/model-assets/README.html">Packaged Model Assets</a><input aria-label="Toggle navigation of Packaged Model Assets" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../pyamplicol/development/model-assets/TRANSFORMATIONS.html">Model Asset Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../pyamplicol/development/ON_THE_FLY_MODE_ARCHITECTURE.html">On-the-fly Mode Architecture and Implementation Record</a></li>
 </ul>
 </li>
 </ul>
@@ -620,18 +743,13 @@
 <p><div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[
-  \mu = \sum_i m_i, \qquad
   \mu = E_\mathrm{T} = \sum_i \frac{E_i\,p_{\mathrm{T},i}}{|\vec p_i|},
-\]</div>
-</div>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[
+  \qquad
   \mu = H_\mathrm{T} = \sum_i \sqrt{m_i^2 + p_{\mathrm{T},i}^2},
 \]</div>
 </div>
 </p>
-<p>with <a class="reference internal" href="#classmadspace_1_1EnergyScale_1aca9fe6556903bd0fac883b3e39aaf8da"><span class="std std-ref">DynamicalScaleType</span></a> selecting <span class="math notranslate nohighlight">\(E_\mathrm{T}\)</span> (<code class="docutils literal notranslate"><span class="pre">transverse_energy</span></code>), <span class="math notranslate nohighlight">\(H_\mathrm{T}\)</span> (<code class="docutils literal notranslate"><span class="pre">transverse_mass</span></code>), <span class="math notranslate nohighlight">\(H_\mathrm{T}/2\)</span> (<code class="docutils literal notranslate"><span class="pre">half_transverse_mass</span></code>) or <span class="math notranslate nohighlight">\(\sqrt{\hat s}\)</span> (<code class="docutils literal notranslate"><span class="pre">partonic_energy</span></code>). The dynamical scale is multiplied by <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>, e.g. <span class="math notranslate nohighlight">\(H_\mathrm{T}/4\)</span> is <code class="docutils literal notranslate"><span class="pre">half_transverse_mass</span></code> with <code class="docutils literal notranslate"><span class="pre">scale_factor</span> <span class="pre">=</span> <span class="pre">0.5</span></code>. A <a class="reference internal" href="CustomFunction.html#classmadspace_1_1CustomFunction"><span class="std std-ref">CustomFunction</span></a> of type <a class="reference internal" href="CustomFunction.html#classmadspace_1_1CustomFunction_1aa9c14b8c789075c21344aa8d677d643aa6c571efcc272ededd4bf066cfbc8b18d"><span class="std std-ref">CustomFunction::scale</span></a> replaces the dynamical choice, like <code class="docutils literal notranslate"><span class="pre">user_dynamical_scale</span></code> in MadGraph5.</p>
+<p>with sums over the outgoing particles, and <a class="reference internal" href="#classmadspace_1_1EnergyScale_1aca9fe6556903bd0fac883b3e39aaf8da"><span class="std std-ref">DynamicalScaleType</span></a> selecting <span class="math notranslate nohighlight">\(E_\mathrm{T}\)</span> (<code class="docutils literal notranslate"><span class="pre">transverse_energy</span></code>), <span class="math notranslate nohighlight">\(H_\mathrm{T}\)</span> (<code class="docutils literal notranslate"><span class="pre">transverse_mass</span></code>), <span class="math notranslate nohighlight">\(H_\mathrm{T}/2\)</span> (<code class="docutils literal notranslate"><span class="pre">half_transverse_mass</span></code>) or <span class="math notranslate nohighlight">\(\sqrt{\hat s}\)</span> (<code class="docutils literal notranslate"><span class="pre">partonic_energy</span></code>). The dynamical scale is multiplied by <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>, e.g. <span class="math notranslate nohighlight">\(H_\mathrm{T}/4\)</span> is <code class="docutils literal notranslate"><span class="pre">half_transverse_mass</span></code> with <code class="docutils literal notranslate"><span class="pre">scale_factor</span> <span class="pre">=</span> <span class="pre">0.5</span></code>. A <a class="reference internal" href="CustomFunction.html#classmadspace_1_1CustomFunction"><span class="std std-ref">CustomFunction</span></a> of type <a class="reference internal" href="CustomFunction.html#classmadspace_1_1CustomFunction_1aa9c14b8c789075c21344aa8d677d643aa6c571efcc272ededd4bf066cfbc8b18d"><span class="std std-ref">CustomFunction::scale</span></a> replaces the dynamical choice (also multiplied by <code class="docutils literal notranslate"><span class="pre">scale_factor</span></code>), like <code class="docutils literal notranslate"><span class="pre">user_dynamical_scale</span></code> in MadGraph5.</p>
 <p><code class="docutils literal notranslate"><span class="pre">batch</span></code> is the leading batch dimension.</p>
 <p><strong>Arguments</strong><ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">momenta</span></code> – <code class="docutils literal notranslate"><span class="pre">float</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">particle_count,</span> <span class="pre">4)</span></code> – the event momenta.</p></li>
@@ -698,36 +816,40 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleType">
-<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleType"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleType"></span><span id="madspace::EnergyScale::EnergyScale__std::s.DynamicalScaleType"></span><span class="target" id="classmadspace_1_1EnergyScale_1a4801ad18e94f96c44ca3d9fdd8f6e462"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <a class="reference internal" href="#_CPPv4N8madspace11EnergyScale18DynamicalScaleTypeE" title="madspace::EnergyScale::DynamicalScaleType"><span class="n"><span class="pre">DynamicalScaleType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleType" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypedd">
+<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypedd"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypedd"></span><span id="madspace::EnergyScale::EnergyScale__std::s.DynamicalScaleType.double.double"></span><span class="target" id="classmadspace_1_1EnergyScale_1a70d794007c114bd23eb01ccb5a5a8d7f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <a class="reference internal" href="#_CPPv4N8madspace11EnergyScale18DynamicalScaleTypeE" title="madspace::EnergyScale::DynamicalScaleType"><span class="n"><span class="pre">DynamicalScaleType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypedd" title="Link to this definition">¶</a><br /></dt>
 <dd><p>Dynamical scale of type <code class="docutils literal notranslate"><span class="pre">type</span></code> for all three scales. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>particle_count</strong> – Number of external particles. </p></li>
 <li><p><strong>type</strong> – The dynamical scale choice. </p></li>
+<li><p><strong>min_scale</strong> – Floor on the scales, see the full constructor. </p></li>
+<li><p><strong>max_scale</strong> – Ceiling on the scales, see the full constructor. </p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEd">
-<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tEd"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tEd"></span><span id="madspace::EnergyScale::EnergyScale__std::s.double"></span><span class="target" id="classmadspace_1_1EnergyScale_1a20cbbb36014d1398154d28d1c6bbab12"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fixed_scale</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEd" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEddd">
+<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tEddd"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tEddd"></span><span id="madspace::EnergyScale::EnergyScale__std::s.double.double.double"></span><span class="target" id="classmadspace_1_1EnergyScale_1acd6ecb624858ff07bb037c6d7b1ae697"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fixed_scale</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEddd" title="Link to this definition">¶</a><br /></dt>
 <dd><p>A single fixed value for all three scales. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>particle_count</strong> – Number of external particles. </p></li>
 <li><p><strong>fixed_scale</strong> – The constant scale value. </p></li>
+<li><p><strong>min_scale</strong> – Floor on the scales, see the full constructor. </p></li>
+<li><p><strong>max_scale</strong> – Ceiling on the scales, see the full constructor. </p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEE">
-<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEE"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEE"></span><span id="madspace::EnergyScale::EnergyScale__std::s.DynamicalScaleType.b.b.double.double.double.double.std::optional:CustomFunction:CR"></span><span class="target" id="classmadspace_1_1EnergyScale_1ac8d5a756bbe9f02735d7b139b9baeb9b"></span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <a class="reference internal" href="#_CPPv4N8madspace11EnergyScale18DynamicalScaleTypeE" title="madspace::EnergyScale::DynamicalScaleType"><span class="n"><span class="pre">DynamicalScaleType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dynamical_scale_type</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ren_scale_fixed</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale_fixed</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ren_scale</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale2</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">scale_factor</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1.</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="CustomFunction.html#_CPPv4N8madspace14CustomFunctionE" title="madspace::CustomFunction"><span class="n"><span class="pre">CustomFunction</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">custom_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEE" title="Link to this definition">¶</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEEdd">
+<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEEdd"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEEdd"></span><span id="madspace::EnergyScale::EnergyScale__std::s.DynamicalScaleType.b.b.double.double.double.double.std::optional:CustomFunction:CR.double.double"></span><span class="target" id="classmadspace_1_1EnergyScale_1af5fb687d47f97c621068996b49f6ca5a"></span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">particle_count</span></span>, <a class="reference internal" href="#_CPPv4N8madspace11EnergyScale18DynamicalScaleTypeE" title="madspace::EnergyScale::DynamicalScaleType"><span class="n"><span class="pre">DynamicalScaleType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dynamical_scale_type</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ren_scale_fixed</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale_fixed</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ren_scale</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fact_scale2</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">scale_factor</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">1.</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="CustomFunction.html#_CPPv4N8madspace14CustomFunctionE" title="madspace::CustomFunction"><span class="n"><span class="pre">CustomFunction</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">custom_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">nullopt</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEEdd" title="Link to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -738,12 +860,95 @@
 <li><p><strong>ren_scale</strong> – Fixed renormalization-scale value. </p></li>
 <li><p><strong>fact_scale1</strong> – Fixed factorization scale for the first beam. </p></li>
 <li><p><strong>fact_scale2</strong> – Fixed factorization scale for the second beam. </p></li>
-<li><p><strong>scale_factor</strong> – Factor on the dynamical scale; fixed scales are left alone. </p></li>
+<li><p><strong>scale_factor</strong> – Factor on the dynamical or custom scale; fixed scales are left alone. </p></li>
 <li><p><strong>custom_scale</strong> – Optional user-supplied function that replaces the dynamical scale choice. </p></li>
+<li><p><strong>min_scale</strong> – Floor on mu_R and mu_F. The scales are clamped to it, so that a pdf is never asked for a density below the bottom of its grid. Zero disables it. </p></li>
+<li><p><strong>max_scale</strong> – Upper end of the same range, normally the top of the PDF grid. Zero disables it. </p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N8madspace11EnergyScale11EnergyScaleERK13MLMClusteringdd">
+<span id="_CPPv3N8madspace11EnergyScale11EnergyScaleERK13MLMClusteringdd"></span><span id="_CPPv2N8madspace11EnergyScale11EnergyScaleERK13MLMClusteringdd"></span><span id="madspace::EnergyScale::EnergyScale__MLMClusteringCR.double.double"></span><span class="target" id="classmadspace_1_1EnergyScale_1a34362b59055eeb3aa2cf7b8ce3526085"></span><span class="sig-name descname"><span class="n"><span class="pre">EnergyScale</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="MLMClustering.html#_CPPv4N8madspace13MLMClusteringE" title="madspace::MLMClustering"><span class="n"><span class="pre">MLMClustering</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">clustering</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">min_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">max_scale</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleERK13MLMClusteringdd" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Scales from an MLM clustering of the event (dynamical_scale_choice mlm). </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clustering</strong> – The compiled clustering histories of the subprocess. </p></li>
+<li><p><strong>min_scale</strong> – As in the full constructor; here an event whose scales fall outside the range is also vetoed, through an extra <code class="docutils literal notranslate"><span class="pre">scale_weight</span></code> output, as setclscales does. </p></li>
+<li><p><strong>max_scale</strong> – As in the full constructor. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale6is_mlmEv">
+<span id="_CPPv3NK8madspace11EnergyScale6is_mlmEv"></span><span id="_CPPv2NK8madspace11EnergyScale6is_mlmEv"></span><span id="madspace::EnergyScale::is_mlmC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a72c5fcba50e927861f81d11bba1cd988"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">is_mlm</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale6is_mlmEv" title="Link to this definition">¶</a><br /></dt>
+<dd><p>Whether the scales come from an MLM clustering of the event. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale22mlm_alphas_reweightingEv">
+<span id="_CPPv3NK8madspace11EnergyScale22mlm_alphas_reweightingEv"></span><span id="_CPPv2NK8madspace11EnergyScale22mlm_alphas_reweightingEv"></span><span id="madspace::EnergyScale::mlm_alphas_reweightingC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a0a8f2527637523979d019cde6b23d90e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mlm_alphas_reweighting</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale22mlm_alphas_reweightingEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale19mlm_pdf_reweightingEv">
+<span id="_CPPv3NK8madspace11EnergyScale19mlm_pdf_reweightingEv"></span><span id="_CPPv2NK8madspace11EnergyScale19mlm_pdf_reweightingEv"></span><span id="madspace::EnergyScale::mlm_pdf_reweightingC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a81c3ed3b95fd43520ef1e00cec2ac86c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mlm_pdf_reweighting</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale19mlm_pdf_reweightingEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale21mlm_pdf_absolute_pdgsEv">
+<span id="_CPPv3NK8madspace11EnergyScale21mlm_pdf_absolute_pdgsEv"></span><span id="_CPPv2NK8madspace11EnergyScale21mlm_pdf_absolute_pdgsEv"></span><span id="madspace::EnergyScale::mlm_pdf_absolute_pdgsC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a5b2eb5b6e666da0261f9ace54bbb60cd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">mlm_pdf_absolute_pdgs</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale21mlm_pdf_absolute_pdgsEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale23mlm_history_per_diagramEv">
+<span id="_CPPv3NK8madspace11EnergyScale23mlm_history_per_diagramEv"></span><span id="_CPPv2NK8madspace11EnergyScale23mlm_history_per_diagramEv"></span><span id="madspace::EnergyScale::mlm_history_per_diagramC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a0a44af34d811c1a546e6e4ffa94b4f5b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mlm_history_per_diagram</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale23mlm_history_per_diagramEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale24mlm_diagram_start_statesEv">
+<span id="_CPPv3NK8madspace11EnergyScale24mlm_diagram_start_statesEv"></span><span id="_CPPv2NK8madspace11EnergyScale24mlm_diagram_start_statesEv"></span><span id="madspace::EnergyScale::mlm_diagram_start_statesC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a1f5864d183b394abc7ff10de534144f7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">me_int_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">mlm_diagram_start_states</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale24mlm_diagram_start_statesEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale26build_mlm_from_start_stateER15FunctionBuilder5Value5Value5ValueRKNSt6vectorI8me_int_tEE">
+<span id="_CPPv3NK8madspace11EnergyScale26build_mlm_from_start_stateER15FunctionBuilder5Value5Value5ValueRKNSt6vectorI8me_int_tEE"></span><span id="_CPPv2NK8madspace11EnergyScale26build_mlm_from_start_stateER15FunctionBuilder5Value5Value5ValueRKNSt6vectorI8me_int_tEE"></span><span id="madspace::EnergyScale::build_mlm_from_start_state__FunctionBuilderR.Value.Value.Value.std::vector:me_int_t:CRC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a480e2240d1cdfca9c10d262f007f9cbb"></span><a class="reference internal" href="NamedVector.html#_CPPv4I0EN8madspace11NamedVectorE" title="madspace::NamedVector"><span class="n"><span class="pre">NamedVector</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build_mlm_from_start_state</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="FunctionBuilder.html#_CPPv4N8madspace15FunctionBuilderE" title="madspace::FunctionBuilder"><span class="n"><span class="pre">FunctionBuilder</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">fb</span></span>, <a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">momenta</span></span>, <a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">start_state</span></span>, <a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flavor_index</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">me_int_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">leg_flavors</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale26build_mlm_from_start_stateER15FunctionBuilder5Value5Value5ValueRKNSt6vectorI8me_int_tEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale22build_mlm_with_flavorsER15FunctionBuilder5Value5ValueRKNSt6vectorI8me_int_tEE">
+<span id="_CPPv3NK8madspace11EnergyScale22build_mlm_with_flavorsER15FunctionBuilder5Value5ValueRKNSt6vectorI8me_int_tEE"></span><span id="_CPPv2NK8madspace11EnergyScale22build_mlm_with_flavorsER15FunctionBuilder5Value5ValueRKNSt6vectorI8me_int_tEE"></span><span id="madspace::EnergyScale::build_mlm_with_flavors__FunctionBuilderR.Value.Value.std::vector:me_int_t:CRC"></span><span class="target" id="classmadspace_1_1EnergyScale_1ab1c9594e7119a1779a5fff771b6f43ad"></span><a class="reference internal" href="NamedVector.html#_CPPv4I0EN8madspace11NamedVectorE" title="madspace::NamedVector"><span class="n"><span class="pre">NamedVector</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">build_mlm_with_flavors</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="FunctionBuilder.html#_CPPv4N8madspace15FunctionBuilderE" title="madspace::FunctionBuilder"><span class="n"><span class="pre">FunctionBuilder</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">fb</span></span>, <a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">momenta</span></span>, <a class="reference internal" href="Value.html#_CPPv4N8madspace5ValueE" title="madspace::Value"><span class="n"><span class="pre">Value</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flavor_index</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">me_int_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">leg_flavors</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale22build_mlm_with_flavorsER15FunctionBuilder5Value5ValueRKNSt6vectorI8me_int_tEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale20mlm_flavor_dependentEv">
+<span id="_CPPv3NK8madspace11EnergyScale20mlm_flavor_dependentEv"></span><span id="_CPPv2NK8madspace11EnergyScale20mlm_flavor_dependentEv"></span><span id="madspace::EnergyScale::mlm_flavor_dependentC"></span><span class="target" id="classmadspace_1_1EnergyScale_1abdfe6e1392aa2c585716cc2fe6a1bae2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mlm_flavor_dependent</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale20mlm_flavor_dependentEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale9min_scaleEv">
+<span id="_CPPv3NK8madspace11EnergyScale9min_scaleEv"></span><span id="_CPPv2NK8madspace11EnergyScale9min_scaleEv"></span><span id="madspace::EnergyScale::min_scaleC"></span><span class="target" id="classmadspace_1_1EnergyScale_1af7d552df32ba106b65b54d10af15e939"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">min_scale</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale9min_scaleEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale9max_scaleEv">
+<span id="_CPPv3NK8madspace11EnergyScale9max_scaleEv"></span><span id="_CPPv2NK8madspace11EnergyScale9max_scaleEv"></span><span id="madspace::EnergyScale::max_scaleC"></span><span class="target" id="classmadspace_1_1EnergyScale_1ad737e48924b500f85a9141dc89389109"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_scale</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale9max_scaleEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale15has_scale_rangeEv">
+<span id="_CPPv3NK8madspace11EnergyScale15has_scale_rangeEv"></span><span id="_CPPv2NK8madspace11EnergyScale15has_scale_rangeEv"></span><span id="madspace::EnergyScale::has_scale_rangeC"></span><span class="target" id="classmadspace_1_1EnergyScale_1af475a2f9097cd0f20b990bb786346b12"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">has_scale_range</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale15has_scale_rangeEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK8madspace11EnergyScale14has_scale_vetoEv">
+<span id="_CPPv3NK8madspace11EnergyScale14has_scale_vetoEv"></span><span id="_CPPv2NK8madspace11EnergyScale14has_scale_vetoEv"></span><span id="madspace::EnergyScale::has_scale_vetoC"></span><span class="target" id="classmadspace_1_1EnergyScale_1a292e029d3c9a165350b50968ee9258f1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">has_scale_veto</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK8madspace11EnergyScale14has_scale_vetoEv" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
 
 </div>
 </dd></dl>
@@ -764,14 +969,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="DiscreteHistogram.html">
+          <a class="prev-page" href="EEPartonDensity.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">DiscreteHistogram</div>
+                <div class="title">EEPartonDensity</div>
                 
               </div>
             </a>
@@ -815,9 +1020,23 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleType"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEd"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
-<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEE"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypedd"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tEddd"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleENSt6size_tE18DynamicalScaleTypebbddddRKNSt8optionalI14CustomFunctionEEdd"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N8madspace11EnergyScale11EnergyScaleERK13MLMClusteringdd"><code class="docutils literal notranslate"><span class="pre">EnergyScale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale6is_mlmEv"><code class="docutils literal notranslate"><span class="pre">is_mlm()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale22mlm_alphas_reweightingEv"><code class="docutils literal notranslate"><span class="pre">mlm_alphas_reweighting()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale19mlm_pdf_reweightingEv"><code class="docutils literal notranslate"><span class="pre">mlm_pdf_reweighting()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale21mlm_pdf_absolute_pdgsEv"><code class="docutils literal notranslate"><span class="pre">mlm_pdf_absolute_pdgs()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale23mlm_history_per_diagramEv"><code class="docutils literal notranslate"><span class="pre">mlm_history_per_diagram()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale24mlm_diagram_start_statesEv"><code class="docutils literal notranslate"><span class="pre">mlm_diagram_start_states()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale26build_mlm_from_start_stateER15FunctionBuilder5Value5Value5ValueRKNSt6vectorI8me_int_tEE"><code class="docutils literal notranslate"><span class="pre">build_mlm_from_start_state()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale22build_mlm_with_flavorsER15FunctionBuilder5Value5ValueRKNSt6vectorI8me_int_tEE"><code class="docutils literal notranslate"><span class="pre">build_mlm_with_flavors()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale20mlm_flavor_dependentEv"><code class="docutils literal notranslate"><span class="pre">mlm_flavor_dependent()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale9min_scaleEv"><code class="docutils literal notranslate"><span class="pre">min_scale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale9max_scaleEv"><code class="docutils literal notranslate"><span class="pre">max_scale()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale15has_scale_rangeEv"><code class="docutils literal notranslate"><span class="pre">has_scale_range()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4NK8madspace11EnergyScale14has_scale_vetoEv"><code class="docutils literal notranslate"><span class="pre">has_scale_veto()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -835,6 +1054,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

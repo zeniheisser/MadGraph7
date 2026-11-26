@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="First steps" href="first_steps.html"><link rel="prev" title="MadGraph7 documentation" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="TIRust for MadLoop" href="tirust.html"><link rel="prev" title="MadGraph7 documentation" href="index.html">
         <link rel="canonical" href="https://docs.madgraph.org/latest/installation.html">
         <link rel="prefetch" href="_static/logo-light.png" as="image">
         <link rel="prefetch" href="_static/logo-dark.png" as="image">
@@ -175,7 +175,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -278,11 +278,15 @@
   <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tirust.html">TIRust for MadLoop</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first_steps.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standalone.html">Standalone matrix elements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="run_card.html">Run card</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_functions.html">Custom functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="diagram_filters.html">Diagram filters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gridpacks.html">Gridpacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster.html">Cluster mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="event_stream.html">Streaming events from Python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="madevent_to_mg7.html">Coming from MadEvent</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MadSpace</span></p>
@@ -305,12 +309,15 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="madspace/python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -330,14 +337,21 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EnergyScale.html">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/HistItem.html">HistItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Integrand.html">Integrand</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -348,9 +362,14 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/VegasHistogram.html">VegasHistogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Decay.html">Decay</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Diagram.html">Diagram</a></li>
@@ -358,6 +377,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/DataType.html">DataType</a></li>
@@ -370,6 +390,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -379,6 +400,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventGenerator.html">EventGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/EventHistograms.html">EventHistograms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/GeneratorStatus.html">GeneratorStatus</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Histogram.html">Histogram</a></li>
@@ -409,6 +431,9 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/VegasGridOptimizer.html">VegasGridOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/Verbosity.html">Verbosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/cpu_device.html">cpu_device</a></li>
@@ -422,7 +447,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="madspace/python/set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/weighting_groups_to_json.html">weighting_groups_to_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/BeamstrahlungQTerm.html">BeamstrahlungQTerm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/python/MergingCut.html">MergingCut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/NamedTypes.html">NamedTypes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/NamedValues.html">NamedValues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/python/PythonFunction.html">PythonFunction</a></li>
@@ -434,12 +464,15 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="madspace/cpp-api.html">C++ API</a><input aria-label="Toggle navigation of C++ API" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ChiliMapping.html">ChiliMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ColorOrderedMapping.html">ColorOrderedMapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteFlavorLevels.html">DiscreteFlavorLevels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteFlow.html">DiscreteFlow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteSampler.html">DiscreteSampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DoubleT.html">DoubleT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FastRamboMapping.html">FastRamboMapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Flow.html">Flow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Invariant.html">Invariant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonLuminosity.html">LeptonLuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonLuminosityInvariant.html">LeptonLuminosityInvariant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Luminosity.html">Luminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Mapping.html">Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelMapping.html">MultiChannelMapping</a></li>
@@ -457,6 +490,8 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Cuts.html">Cuts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DifferentialCrossSection.html">DifferentialCrossSection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/DiscreteHistogram.html">DiscreteHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EELuminosity.html">EELuminosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EEPartonDensity.html">EEPartonDensity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EnergyScale.html">EnergyScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FunctionGenerator.html">FunctionGenerator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GradientClipper.html">GradientClipper</a></li>
@@ -465,9 +500,14 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandCommonPart.html">IntegrandCommonPart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandConcatenator.html">IntegrandConcatenator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/IntegrandProbability.html">IntegrandProbability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClustering.html">MLMClustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClusteringAlongDiagram.html">MLMClusteringAlongDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLMClusteringWithFlavors.html">MLMClusteringWithFlavors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MLP.html">MLP</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MadnisLoss.html">MadnisLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MappingChannelWeights.html">MappingChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MatrixElement.html">MatrixElement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MergingScale.html">MergingScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MomentumPreprocessing.html">MomentumPreprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelFunction.html">MultiChannelFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/MultiChannelIntegrand.html">MultiChannelIntegrand</a></li>
@@ -478,14 +518,23 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/PropagatorChannelWeights.html">PropagatorChannelWeights</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/RunningCoupling.html">RunningCoupling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubchannelWeights.html">SubchannelWeights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/TabulatedLuminosity.html">TabulatedLuminosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Unweighter.html">Unweighter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/VegasHistogram.html">VegasHistogram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingStepFunction.html">WeightingStepFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/AlphaSGrid.html">AlphaSGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BeamstrahlungParameters.html">BeamstrahlungParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BeamstrahlungSampler.html">BeamstrahlungSampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ClusteringClass.html">ClusteringClass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ClusteringLine.html">ClusteringLine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/CustomPdf.html">CustomPdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Diagram.html">Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonSHatResult.html">LeptonSHatResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LeptonSplitResult.html">LeptonSplitResult</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/PdfGrid.html">PdfGrid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Propagator.html">Propagator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Topology.html">Topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingStep.html">WeightingStep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/initialize_vegas_grid.html">initialize_vegas_grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/BatchSize.html">BatchSize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Function.html">Function</a></li>
@@ -496,6 +545,7 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Value.html">Value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/batch_float_array.html">batch_float_array</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/batch_four_vec_array.html">batch_four_vec_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/fuse_instructions.html">fuse_instructions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/multichannel_batch_size.html">multichannel_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/AdamOptimizer.html">AdamOptimizer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/ChannelEventGenerator.html">ChannelEventGenerator</a></li>
@@ -510,10 +560,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventHistogramSpec.html">EventHistogramSpec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventHistograms.html">EventHistograms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventRecord.html">EventRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/EventStream.html">EventStream</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/FieldLayout.html">FieldLayout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorBatchJob.html">GeneratorBatchJob</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorConfig.html">GeneratorConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GeneratorStatus.html">GeneratorStatus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/GzipCompressor.html">GzipCompressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Histogram.html">Histogram</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LHECompleter.html">LHECompleter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/LHEEvent.html">LHEEvent</a></li>
@@ -540,6 +592,12 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Runtime.html">Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Sizes.html">Sizes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StatusFile.html">StatusFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepChainResult.html">StepChainResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepEvents.html">StepEvents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepIntegral.html">StepIntegral</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepSettings.html">StepSettings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepStatistics.html">StepStatistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/StepSums.html">StepSums</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubprocessObservables.html">SubprocessObservables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SubprocessSystArgs.html">SubprocessSystArgs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/SystematicsCalculator.html">SystematicsCalculator</a></li>
@@ -554,6 +612,10 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/UnalignedRef.html">UnalignedRef</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Variation.html">Variation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/VegasGridOptimizer.html">VegasGridOptimizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingGroup.html">WeightingGroup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/WeightingPipeline.html">WeightingPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/apply_mlm_collider_shower_scale.html">apply_mlm_collider_shower_scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/apply_mlm_hardest_shower_scale.html">apply_mlm_hardest_shower_scale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/available_backends.html">available_backends</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/compute_generation_batch_event_count.html">compute_generation_batch_event_count</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/cpu_device.html">cpu_device</a></li>
@@ -567,9 +629,70 @@
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/hip_device.html">hip_device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/select_combine_channel_index.html">select_combine_channel_index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_lib_path.html">set_lib_path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_simd_vector_size.html">set_simd_vector_size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/set_simd_mode.html">set_simd_mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/supported_simd_modes.html">supported_simd_modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/weighting_groups_from_json.html">weighting_groups_from_json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="madspace/cpp/weighting_groups_to_json.html">weighting_groups_to_json</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/NamedVector.html">NamedVector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="madspace/cpp/Overloaded.html">Overloaded</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">pyAmpliCol</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html">Start here</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#install-and-try-it">Install and try it</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#one-artifact-several-interfaces">One artifact, several interfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pyamplicol/README.html#explore-the-documentation">Explore the documentation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/installation.html">Installation</a><input aria-label="Toggle navigation of Installation" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/quick-start.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/examples-gallery.html">Examples Gallery</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/gentle-walkthrough.html">Get started: a gentle walkthrough</a><input aria-label="Toggle navigation of Get started: a gentle walkthrough" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/lc-workloads-and-execution-modes.html">LC workloads and execution modes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/configuration.html">Configuration</a><input aria-label="Toggle navigation of Configuration" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/models-and-processes.html">Models and Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/ufo-model-coverage.html">UFO Model Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/process-selection-and-permutations.html">Process Selection and Permutations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/process-grouping.html">Process grouping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/generation-modes-and-evaluators.html">Generation Modes and Evaluators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/command-line-interface.html">Command-Line Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/python-api.html">Python API</a><input aria-label="Toggle navigation of Python API" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/runtime-and-selectors.html">Runtime and Selectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/native-apis.html">Native APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/artifacts-and-portability.html">Artifacts and Portability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/umami-api.html">UMAMI and MadSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/reference/recurrence-export.html">Resolved recurrence export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/correlators.html">Tree-level spin and colour correlations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/correlator-conventions.html">Conventions for spin- and colour-correlated Born quantities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/profiling-and-benchmarking.html">Profiling and Benchmarking</a><input aria-label="Toggle navigation of Profiling and Benchmarking" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/release-and-support.html">Release and Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/user/architecture-overview.html">Architecture Overview</a><input aria-label="Toggle navigation of Architecture Overview" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/user/symbolica-and-licensing.html">Symbolica and Licensing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pyamplicol/development/README.html">Development Documentation</a><input aria-label="Toggle navigation of Development Documentation" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/API_CONTRACT.html">Public API Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/CONFIG_CONTRACT.html">Configuration Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/ARCHITECTURE_DECISIONS.html">Architecture Decisions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/PACKAGING_CONTRACT.html">Packaging And Release Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/PHYSICS_EXTRACTION_CONTRACT.html">Physics Extraction Contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/MODEL_ASSET_PROVENANCE.html">Model Asset Provenance</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyamplicol/development/model-assets/README.html">Packaged Model Assets</a><input aria-label="Toggle navigation of Packaged Model Assets" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyamplicol/development/model-assets/TRANSFORMATIONS.html">Model Asset Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyamplicol/development/ON_THE_FLY_MODE_ARCHITECTURE.html">On-the-fly Mode Architecture and Implementation Record</a></li>
 </ul>
 </li>
 </ul>
@@ -605,7 +728,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
@@ -624,6 +747,92 @@ start the interface:</p>
 installed automatically the first time you launch a run. To build it yourself instead,
 run <code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">madspace</span></code> from the MadGraph7 prompt, or see the
 <a class="reference internal" href="madspace/installation.html"><span class="doc">MadSpace installation instructions</span></a>.</p>
+<p>For the optional TIRust/oneloopmaster MadLoop reduction backend, see
+<a class="reference internal" href="tirust.html"><span class="doc">TIRust installation and controls</span></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pyamplicol</span></code> package, used by the <code class="docutils literal notranslate"><span class="pre">[amplicol]</span></code> matrix-element backend, is
+installed in the same way with <code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">pyamplicol</span></code>; see the
+<a class="reference internal" href="pyamplicol/user/installation.html"><span class="doc">pyAmpliCol installation instructions</span></a>.</p>
+<section id="ninjars-for-madloop">
+<h2>NinjaRS for MadLoop<a class="headerlink" href="#ninjars-for-madloop" title="Link to this heading">¶</a></h2>
+<p>The optional NinjaRS reduction backend uses oneloopmaster for scalar integrals.
+From the MadGraph7 prompt, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">install</span> <span class="n">ninjars</span>
+</pre></div>
+</div>
+<p>The installer builds the pinned sources in <code class="docutils literal notranslate"><span class="pre">vendor/ninjars/Cargo.lock</span></code>, tests
+the installed Fortran interface in double and quadruple precision, and saves the
+<code class="docutils literal notranslate"><span class="pre">ninjars</span></code> library path. It requires Rust/Cargo 1.96 or later, GNU make, C/C++
+compilers, GNU Fortran on Linux, and the GMP/MPFR numerical build dependencies.
+The Fortran compiler must support <code class="docutils literal notranslate"><span class="pre">REAL(16)</span></code>. The repository’s pinned Nix
+development shell provides these tools.</p>
+<p>Select NinjaRS in the generated <code class="docutils literal notranslate"><span class="pre">Cards/MadLoopParams.dat</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#MLReductionLib</span>
+<span class="mi">8</span>
+</pre></div>
+</div>
+<p>The existing default reduction order is retained. A chain such as <code class="docutils literal notranslate"><span class="pre">8|6|1</span></code>
+also permits Ninja and CutTools fallback. <code class="docutils literal notranslate"><span class="pre">UseQPIntegrandForNinjaRS</span></code> controls
+whether the NinjaRS high-precision rescue receives a numerator recomputed in
+quadruple precision. The CLI checks accept <code class="docutils literal notranslate"><span class="pre">--reduction=8</span></code>.</p>
+<p>High-precision rescue and separated-pole evaluation use Symbolica through
+NinjaRS’s scoped library license, including the oneloopmaster calls made within
+those operations. While that key is valid, concurrent MadGraph processes do
+not need a personal Symbolica key for these NinjaRS operations. The library
+does not change <code class="docutils literal notranslate"><span class="pre">SYMBOLICA_LICENSE</span></code> or authorize unrelated Symbolica work in
+the calling application. If the library key expires or is revoked, Symbolica’s
+usual personal-license or restricted-mode rules apply; an upstream license
+failure can terminate a process before MadLoop can try another backend.</p>
+<p>For local development, supply source checkouts explicitly:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">install</span> <span class="n">ninjars</span> <span class="o">--</span><span class="n">source</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">ninjars</span> <span class="o">--</span><span class="n">oneloop</span><span class="o">-</span><span class="n">source</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">oneloopmaster</span> <span class="o">--</span><span class="n">jobs</span><span class="o">=</span><span class="mi">4</span> <span class="o">--</span><span class="n">force</span>
+</pre></div>
+</div>
+<p>These sources are copied into an isolated build directory; the original
+checkouts are left untouched. <code class="docutils literal notranslate"><span class="pre">--force</span></code> replaces an existing installation
+only after the new one passes both precision checks. The default destination is
+<code class="docutils literal notranslate"><span class="pre">HEPTools/ninjars</span></code>; <code class="docutils literal notranslate"><span class="pre">--prefix</span></code> or <code class="docutils literal notranslate"><span class="pre">heptools_install_dir</span></code> selects another
+HEPTools prefix. Build failures retain their log in the reported staging
+directory. A successful installation retains its build log and exact Cargo
+manifest and lockfile. Cargo target and intermediate build caches are kept
+under the installation prefix; explicit <code class="docutils literal notranslate"><span class="pre">CARGO_TARGET_DIR</span></code> and
+<code class="docutils literal notranslate"><span class="pre">CARGO_BUILD_BUILD_DIR</span></code> settings are respected.
+The installation includes <code class="docutils literal notranslate"><span class="pre">include/mninjars.f90</span></code> and <code class="docutils literal notranslate"><span class="pre">include/ninjars.h</span></code>
+alongside the compiled Fortran module in <code class="docutils literal notranslate"><span class="pre">lib</span></code>.</p>
+<p>Both standalone Fortran and <a class="reference external" href="mailto:aMC&#37;&#52;&#48;NLO">aMC<span>&#64;</span>NLO</a> exports support NinjaRS. With
+<code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">output_dependencies</span> <span class="pre">internal</span></code>, the exporter copies its archive, Fortran
+module, available interface sources and link metadata into the output directory.
+The generated makefiles still require the target platform’s native
+compiler/runtime libraries.</p>
+<p>The linker must resolve GNU Fortran’s arithmetic helpers before loading the
+Rust static archive. Otherwise Rust’s compiler builtins can replace the
+<code class="docutils literal notranslate"><span class="pre">REAL(16)</span></code> helpers and change directed IEEE rounding. Generated standalone
+and <a class="reference external" href="mailto:aMC&#37;&#52;&#48;NLO">aMC<span>&#64;</span>NLO</a> makefiles enforce this ordering using <code class="docutils literal notranslate"><span class="pre">ninjars-config.json</span></code>.
+The installer also checks directed quadruple-precision rounding. An older
+installation without this link-order metadata must be rebuilt with
+<code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">ninjars</span> <span class="pre">--force</span></code>, followed by regeneration or relinking of its
+generated processes.</p>
+<p>For a manual Fortran link, use both installed flag files in this order:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>gfortran caller.f90 -I&quot;$PREFIX/lib&quot; \
+  $(cat &quot;$PREFIX/lib/ninjars-link-before.txt&quot;) \
+  &quot;$PREFIX/lib/libninjars.a&quot; \
+  $(cat &quot;$PREFIX/lib/ninjars-native-libs.txt&quot;) -o caller
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">PREFIX</span></code> is the NinjaRS installation directory, usually
+<code class="docutils literal notranslate"><span class="pre">HEPTools/ninjars</span></code>. The current validated compiler-runtime policy is
+GNU Fortran on Linux and places <code class="docutils literal notranslate"><span class="pre">-Wl,--undefined=</span></code> flags for every binary128
+helper in the compiler’s static <code class="docutils literal notranslate"><span class="pre">libgcc.a</span></code>, then that archive (the path
+<code class="docutils literal notranslate"><span class="pre">gfortran</span> <span class="pre">-print-file-name=libgcc.a</span></code> reports), then <code class="docutils literal notranslate"><span class="pre">-lgcc_s</span></code>, before the
+archive. The flags make the linker take each helper from <code class="docutils literal notranslate"><span class="pre">libgcc.a</span></code> even when
+it is first referenced by an object linked after the NinjaRS flags.
+<code class="docutils literal notranslate"><span class="pre">-lgcc_s</span></code> alone is not enough on some toolchains, for example GNU Fortran on
+Nix: the archive’s own binary128 helpers still win and the installer’s rounding
+check fails. Installations that record only <code class="docutils literal notranslate"><span class="pre">-lgcc_s</span></code> passed that check on
+their own toolchain and remain usable; <code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">ninjars</span> <span class="pre">--update</span></code> switches
+them to the current order. If the recorded <code class="docutils literal notranslate"><span class="pre">libgcc.a</span></code> disappears later (a GCC
+upgrade or a Nix garbage collection), NinjaRS reports itself unavailable until
+it is reinstalled. Additional platforms require validation of their
+compiler-runtime resolution.</p>
+</section>
 </section>
 
         </article>
@@ -631,12 +840,12 @@ run <code class="docutils literal notranslate"><span class="pre">install</span> 
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="first_steps.html">
+          <a class="next-page" href="tirust.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">First steps</div>
+                <div class="title">TIRust for MadLoop</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -669,8 +878,27 @@ run <code class="docutils literal notranslate"><span class="pre">install</span> 
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#ninjars-for-madloop">NinjaRS for MadLoop</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
